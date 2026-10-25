@@ -10,7 +10,7 @@ const terrains: Record<string, Terrain> = {
 const legend = { '.': 'plain', F: 'forest', '#': 'wall' };
 
 function mover(over: Partial<Mover> = {}): Mover {
-  return { id: 'a', faction: 'player', pos: { x: 0, y: 0 }, mov: 3, movementType: 'foot', ...over };
+  return { id: 'a', faction: 'player', pos: { x: 0, y: 0 }, stats: { mov: 3 }, movementType: 'foot', ...over };
 }
 
 const keys = (tiles: Iterable<{ x: number; y: number }>) => [...tiles].map((p) => `${p.x},${p.y}`).sort();
@@ -27,7 +27,7 @@ describe('parseGrid', () => {
 describe('moveRange', () => {
   it('spends movement by terrain cost (Dijkstra) and never enters impassable tiles', () => {
     const grid = parseGrid(['.F..', '.#..', '....'], legend);
-    const range = moveRange({ grid, terrains, units: [] }, mover({ mov: 2 }));
+    const range = moveRange({ grid, terrains, units: [] }, mover({ stats: { mov: 2 } }));
     expect(keys(range.destinations)).toEqual(['0,0', '0,1', '0,2', '1,0'].sort());
     expect(range.cost.get('1,0')).toBe(2);
     expect(range.cost.has('1,1')).toBe(false);
@@ -35,8 +35,8 @@ describe('moveRange', () => {
 
   it('uses the movement type: mounted units pay more in forest', () => {
     const grid = parseGrid(['.F.'], legend);
-    const foot = moveRange({ grid, terrains, units: [] }, mover({ mov: 3 }));
-    const horse = moveRange({ grid, terrains, units: [] }, mover({ mov: 3, movementType: 'mounted' }));
+    const foot = moveRange({ grid, terrains, units: [] }, mover({ stats: { mov: 3 } }));
+    const horse = moveRange({ grid, terrains, units: [] }, mover({ stats: { mov: 3 }, movementType: 'mounted' }));
     expect(foot.cost.get('2,0')).toBe(3);
     expect(horse.cost.has('2,0')).toBe(false);
   });
@@ -44,11 +44,11 @@ describe('moveRange', () => {
   it('lets units pass through allies but not stop on them, and enemies block the path', () => {
     const grid = parseGrid(['.....'], legend);
     const ally = mover({ id: 'ally', pos: { x: 1, y: 0 } });
-    const throughAlly = moveRange({ grid, terrains, units: [ally] }, mover({ mov: 3 }));
+    const throughAlly = moveRange({ grid, terrains, units: [ally] }, mover({ stats: { mov: 3 } }));
     expect(keys(throughAlly.destinations)).toEqual(['0,0', '2,0', '3,0']);
 
     const foe = mover({ id: 'foe', faction: 'enemy', pos: { x: 1, y: 0 } });
-    const blocked = moveRange({ grid, terrains, units: [foe] }, mover({ mov: 3 }));
+    const blocked = moveRange({ grid, terrains, units: [foe] }, mover({ stats: { mov: 3 } }));
     expect(keys(blocked.destinations)).toEqual(['0,0']);
   });
 });
@@ -57,7 +57,7 @@ describe('attackRange', () => {
   it('adds every tile within weapon min..max range of any destination', () => {
     const grid = parseGrid(['.....', '.....', '.....'], legend);
     const world = { grid, terrains, units: [] };
-    const unit = mover({ mov: 0, pos: { x: 2, y: 1 } });
+    const unit = mover({ stats: { mov: 0 }, pos: { x: 2, y: 1 } });
     const melee = attackRange(world, moveRange(world, unit).destinations, 1, 1);
     expect(keys(melee)).toEqual(['1,1', '2,0', '2,2', '3,1']);
     const bow = attackRange(world, moveRange(world, unit).destinations, 2, 2);

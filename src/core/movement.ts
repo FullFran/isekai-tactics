@@ -7,8 +7,8 @@ export interface Mover {
   id: string;
   faction: Faction;
   pos: Point;
-  mov: number;
   movementType: MovementType;
+  stats: { mov: number };
 }
 
 export interface World {
@@ -28,7 +28,7 @@ export interface MoveRange {
  * Dijkstra over terrain costs. Enemies of the mover block; allies can be
  * passed through but not stopped on.
  */
-export function moveRange(world: World, unit: Mover, budget = unit.mov): MoveRange {
+export function moveRange(world: World, unit: Mover, budget = unit.stats.mov): MoveRange {
   const occupant = new Map(world.units.filter((u) => u.id !== unit.id).map((u) => [pointKey(u.pos), u]));
   const cost = new Map<string, number>([[pointKey(unit.pos), 0]]);
   const frontier: Array<{ p: Point; c: number }> = [{ p: unit.pos, c: 0 }];
