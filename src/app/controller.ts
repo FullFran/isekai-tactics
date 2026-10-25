@@ -147,6 +147,15 @@ export class Controller {
     this.cursor = { x: Math.max(0, Math.min(width - 1, this.cursor.x + dx)), y: Math.max(0, Math.min(height - 1, this.cursor.y + dy)) };
   }
 
+  /** Idle player phase: puts the cursor on the next unit that can still act, in unit order. */
+  nextReadyUnit(): void {
+    if (this.mode.kind !== 'idle' || this.state.phase !== 'player') return;
+    const ready = readyUnits(this.state);
+    if (ready.length === 0) return;
+    const at = ready.findIndex((u) => samePoint(u.pos, this.cursor));
+    this.cursor = { ...ready[(at + 1) % ready.length]!.pos };
+  }
+
   confirm(): void {
     if (this.mode.kind === 'target') {
       const { unitId, to } = this.mode;

@@ -78,3 +78,25 @@ export function attackRange(world: World, destinations: readonly Point[], minRan
   }
   return [...seen.values()].sort((a, b) => a.y - b.y || a.x - b.x);
 }
+
+/**
+ * A cheapest walk from the unit to `to`, start and end included, rebuilt
+ * backwards over `moveRange` costs. Unreachable (or the unit's own tile): just the start.
+ */
+export function pathTo(world: World, unit: Mover, to: Point): Point[] {
+  const { cost } = moveRange(world, unit);
+  const target = cost.get(pointKey(to));
+  if (target === undefined || (to.x === unit.pos.x && to.y === unit.pos.y)) return [{ ...unit.pos }];
+  const path: Point[] = [{ ...to }];
+  let here = to;
+  let spent = target;
+  while (spent > 0) {
+    const step = terrainAt(world.grid, world.terrains, here).moveCost[unit.movementType] ?? 0;
+    const previous = neighbours(world.grid, here).find((n) => cost.get(pointKey(n)) === spent - step);
+    if (!previous) break;
+    path.unshift(previous);
+    here = previous;
+    spent -= step;
+  }
+  return path;
+}

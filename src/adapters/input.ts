@@ -1,48 +1,52 @@
-import type { Controller } from '../app/controller';
+import type { Point } from '../core/grid';
 import { tileFromEvent } from './canvas';
+import { battleCommand, type BattleCommand } from './keys';
+import { listHasKeyboard } from './ui/cursor-list';
 
-export interface InputHooks {
-  changed(): void;
-  endTurn(): void;
-  restart(): void;
-  toggleLanguage(): void;
+export interface BattleInput {
+  /** Map size, to ignore clicks on the canvas border. */
+  size(): { width: number; height: number };
+  command(command: BattleCommand): void;
+  click(p: Point): void;
+  hover(p: Point): void;
+  /** Right click. */
+  cancel(): void;
 }
 
-/** Keyboard and mouse bindings onto the controller. */
-export function bindInput(canvas: HTMLCanvasElement, c: Controller, hooks: InputHooks): void {
-  const inBounds = (p: { x: number; y: number }) => p.x >= 0 && p.y >= 0 && p.x < c.state.grid.width && p.y < c.state.grid.height;
-  canvas.addEventListener('click', (e) => {
+/**
+ * Keyboard and mouse on the battle map. Keys an open cursor menu handles (the
+ * action menu, the pause menu) never reach the map. Returns the unbinding.
+ */
+export function bindBattleInput(canvas: HTMLCanvasElement, input: BattleInput): () => void {
+  const inside = (p: Point) => p.x >= 0 && p.y >= 0 && p.x < input.size().width && p.y < input.size().height;
+  const onClick = (e: MouseEvent) => {
     const p = tileFromEvent(canvas, e);
-    if (inBounds(p)) c.clickTile(p);
-    hooks.changed();
-  });
-  canvas.addEventListener('mousemove', (e) => {
+    if (inside(p)) input.click(p);
+  };
+  const onMove = (e: MouseEvent) => {
     const p = tileFromEvent(canvas, e);
-    if (inBounds(p) && (p.x !== c.cursor.x || p.y !== c.cursor.y)) {
-      c.hover(p);
-      hooks.changed();
-    }
-  });
-  canvas.addEventListener('contextmenu', (e) => {
+    if (inside(p)) input.hover(p);
+  };
+  const onContext = (e: MouseEvent) => {
     e.preventDefault();
-    c.cancel();
-    hooks.changed();
-  });
-  window.addEventListener('keydown', (e) => {
-    if (e.target instanceof HTMLSelectElement || e.target instanceof HTMLInputElement) return;
-    const moves: Record<string, [number, number]> = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
-    const move = moves[e.key];
-    if (move) c.moveCursor(...move);
-    else if (e.key === 'Enter' || e.key === ' ' || e.key === 'z' || e.key === 'Z') c.confirm();
-    else if (e.key === 'Escape' || e.key === 'x' || e.key === 'X' || e.key === 'Backspace') c.cancel();
-    else if (e.key === 'a' || e.key === 'A') c.choose('attack');
-    else if (e.key === 'w' || e.key === 'W') c.choose('wait');
-    else if (e.key === 's' || e.key === 'S') c.choose('seize');
-    else if (e.key === 'e' || e.key === 'E') return hooks.endTurn();
-    else if (e.key === 'r' || e.key === 'R') return hooks.restart();
-    else if (e.key === 'l' || e.key === 'L') return hooks.toggleLanguage();
-    else return;
+    input.cancel();
+  };
+  const onKey = (e: KeyboardEvent) => {
+    if (e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey || listHasKeyboard()) return;
+    const command = battleCommand(e.code);
+    if (!command) return;
+    if (command.type === 'confirm' && e.repeat) return e.preventDefault();
     e.preventDefault();
-    hooks.changed();
-  });
+    input.command(command);
+  };
+  canvas.addEventListener('click', onClick);
+  canvas.addEventListener('mousemove', onMove);
+  canvas.addEventListener('contextmenu', onContext);
+  window.addEventListener('keydown', onKey);
+  return () => {
+    canvas.removeEventListener('click', onClick);
+    canvas.removeEventListener('mousemove', onMove);
+    canvas.removeEventListener('contextmenu', onContext);
+    window.removeEventListener('keydown', onKey);
+  };
 }

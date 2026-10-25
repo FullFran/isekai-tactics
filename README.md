@@ -17,11 +17,18 @@ Adding content (chapters, classes, weapons, terrain): see [`docs/authoring.md`](
 
 ## Play
 
-`npm run dev`, open the printed URL. The sample chapter loads on the easy route with a random seed (shown in the panel); switch route or restart from the side panel.
+`npm run dev`, open the printed URL. The title screen offers *Play* (pick the easy or hard route of the sample chapter), *Settings* (language, animation speed, grid lines; remembered in this browser) and *Credits*. Victory or defeat shows a result window with *Back to title* and *Retry*. `?route=easy` (or `hard`) in the URL opens the battle directly.
 
-- **Mouse:** click a blue unit to select it (blue = move, red = attack reach), click a blue tile to move, then pick *Attack*, *Seize* or *Wait*. While targeting, hover/click a target to see the forecast, click it again (or *Confirm*) to attack. Right-click cancels.
-- **Keyboard:** arrows move the cursor, Enter/Space/Z confirm, Esc/X cancel, A attack, W wait, S seize, E end turn, R restart, L toggles Spanish/English.
-- The player phase ends automatically when every unit has acted; the enemy phase plays back one action at a time.
+| Input | Action |
+|---|---|
+| WASD / arrows | Move the map cursor; choose in menus (W/S) |
+| Enter / Space / Z | Select, confirm, attack; speeds up an animation |
+| Esc / X / Backspace, right click | Cancel or go back; with nothing selected, Esc opens the pause menu |
+| Mouse | Hover shows reach (blue = move, red = attack) and the combat forecast; click selects, moves and attacks |
+| Tab | Cursor to the next unit that can still act |
+| E / R / L | End turn / restart the chapter / switch Spanish–English |
+
+The player phase ends automatically when every unit has acted; the enemy phase plays back one action at a time. Units walk their path, attacks lunge and flash, damage, misses, crits and level-ups float over the map, and phase changes show a banner.
 
 ## Layout
 
@@ -29,8 +36,8 @@ Adding content (chapters, classes, weapons, terrain): see [`docs/authoring.md`](
 |---|---|
 | `src/core` | Pure simulation: RNG, grid, combat, phases, AI, EXP, chapter validation. No DOM (enforced by `tsconfig.core.json`). |
 | `src/data` | Content tables (terrain, classes, weapons) and chapter JSON. No DOM. |
-| `src/adapters` | Canvas 2D rendering and input. |
-| `src/app` | Browser entry point and UI flow. |
+| `src/adapters` | Canvas 2D rendering (procedural tiles and tokens), input, sprite-pack loading, UI windows and cursor menus (`src/adapters/ui`). |
+| `src/app` | Browser entry point and UI flow: screens, battle screen, controller, animation presenter (pure), settings. |
 | `tools` | Node CLIs (`npm run validate`). |
 | `src/i18n` | UI strings, Spanish (default, source of truth) and English. A test fails if a key is missing. |
 

@@ -64,3 +64,16 @@ describe('UI controller', () => {
     expect(c.state.units.filter((u) => u.faction === 'player')).toHaveLength(3);
   });
 });
+
+describe('next ready unit', () => {
+  it('cycles the cursor over the units that can still act', () => {
+    const c = make();
+    const ready = c.state.units.filter((u) => u.faction === 'player' && u.status === 'active').map((u) => `${u.pos.x},${u.pos.y}`);
+    const seen = new Set<string>();
+    for (let i = 0; i < ready.length; i++) {
+      c.nextReadyUnit();
+      seen.add(`${c.cursor.x},${c.cursor.y}`);
+    }
+    expect([...seen].sort()).toEqual([...ready].sort());
+  });
+});

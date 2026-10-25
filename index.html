@@ -4,33 +4,104 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Isekai Tactics</title>
+    <meta name="theme-color" content="#05060d" />
     <style>
-      :root { color-scheme: dark; --ink: #10131c; --card: #1b2030; --line: #2e3550; --text: #e8ecf5; --dim: #9aa3bd; --player: #5b8ef0; --enemy: #e0625b; }
-      body { margin: 0; background: var(--ink); color: var(--text); font-family: ui-monospace, monospace; font-size: 14px; }
-      #app { display: flex; flex-wrap: wrap; gap: 16px; padding: 16px; align-items: flex-start; }
-      .board { position: relative; }
-      canvas { display: block; max-width: 100%; height: auto; border: 2px solid var(--line); border-radius: 6px; image-rendering: pixelated; cursor: pointer; }
-      aside { flex: 1; min-width: 280px; max-width: 380px; display: flex; flex-direction: column; gap: 10px; }
-      .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
-      .card.player { border-left: 4px solid var(--player); }
-      .card.enemy { border-left: 4px solid var(--enemy); }
-      h1, h2, h3, h4 { margin: 0 0 6px; }
-      h2 { font-size: 17px; } h3 { font-size: 15px; } h4 { font-size: 14px; }
-      p { margin: 3px 0; }
-      .dim { color: var(--dim); }
-      .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 6px; }
-      .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px 10px; margin-top: 4px; }
-      .sides { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-      .side.player h4 { color: var(--player); } .side.enemy h4 { color: var(--enemy); }
-      .log p { font-size: 12px; }
-      .help { font-size: 12px; }
-      button, select { font: inherit; background: #2a3150; color: var(--text); border: 1px solid #46507a; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
-      button:hover { background: #36406a; }
-      button.disabled { opacity: 0.45; pointer-events: none; }
-      .overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(8, 10, 16, 0.72); border-radius: 6px; }
+      /* Pixelify Sans, SIL OFL 1.1 (public/fonts/PixelifySans-OFL.txt). Relative to the page, so it follows the Vite base. */
+      @font-face { font-family: 'Pixelify Sans'; src: url('./fonts/PixelifySans.ttf') format('truetype'); font-weight: 400 700; font-display: swap; }
+      :root { color-scheme: dark; }
+      body { margin: 0; min-height: 100vh; color: var(--md-text, #f5f7ff); font-family: var(--md-font, ui-monospace, monospace); font-size: var(--md-body, 22px); line-height: 1.25; -webkit-font-smoothing: none;
+        background: radial-gradient(ellipse at 50% 0%, #16244f 0%, var(--md-ink, #05060d) 70%) fixed, var(--md-ink, #05060d);
+        /* The font's fi/fl ligatures read as other letters. */
+        font-variant-ligatures: none; font-feature-settings: 'liga' 0, 'clig' 0, 'dlig' 0; }
+      input, button { font-variant-ligatures: none; font-feature-settings: 'liga' 0, 'clig' 0, 'dlig' 0; }
+
+      /* ---- Windows and cursor list (src/adapters/ui), ported from Mazmorra Sombría ---- */
+      .md-window { position: relative; box-sizing: border-box; padding: 22px 24px 18px; border: 3px solid var(--md-border); border-radius: 12px;
+        background: linear-gradient(180deg, var(--md-window-top), var(--md-window-bottom));
+        box-shadow: 0 0 0 3px var(--md-ink), inset 0 0 0 3px rgba(5, 6, 13, 0.75), inset 0 0 0 5px var(--md-border-shade), 0 9px 0 3px rgba(0, 0, 0, 0.4);
+        animation: md-open var(--md-open-ms, 120ms) ease-out both; transform-origin: 50% 40%; text-align: left; }
+      .md-window.still { animation: none; }
+      .md-window-title { position: absolute; top: -0.85em; left: 18px; margin: 0; padding: 2px 14px; font-size: var(--md-body); font-weight: 700; color: var(--md-cursor);
+        background: var(--md-window-top); border: 3px solid var(--md-border); border-radius: 9px; box-shadow: 0 0 0 3px var(--md-ink); white-space: nowrap; }
+      .md-window-body > :first-child { margin-top: 0; }
+      .md-window-body > :last-child { margin-bottom: 0; }
+      .md-window p { margin: 0.4em 0; }
+      .dim { color: var(--md-text-dim); }
+      .md-stat { display: flex; justify-content: space-between; gap: 2em; padding: 2px 0; }
+      .md-stat-value { color: var(--md-cursor); }
+      .md-list { display: flex; flex-direction: column; gap: 2px; outline: none; }
+      .md-item { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 10px; min-height: 1.6em; padding: 3px 12px 3px 6px; border-radius: 6px; cursor: pointer; color: var(--md-text); }
+      .md-item:focus-visible { outline: 3px solid var(--md-cursor); }
+      .md-item.is-active { background: rgba(255, 255, 255, 0.09); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.12); }
+      .md-item.is-disabled { color: var(--md-disabled); cursor: default; }
+      .md-cursor { flex: none; width: 10px; height: 14px; background: var(--md-cursor); clip-path: polygon(0 0, 100% 50%, 0 100%); visibility: hidden; }
+      .md-item.is-active .md-cursor { visibility: visible; animation: md-bob var(--md-bob-ms, 600ms) steps(1) infinite; }
+      .md-label { flex: 1; }
+      .md-value { display: flex; align-items: center; gap: 10px; color: var(--md-cursor); white-space: nowrap; min-width: 9rem; justify-content: flex-end; }
+      .md-arrow { width: 0; height: 0; font-size: 0; border-top: 7px solid transparent; border-bottom: 7px solid transparent; padding: 0 2px; opacity: 0; }
+      .md-arrow:first-child { border-right: 9px solid var(--md-text-dim); }
+      .md-arrow:last-child { border-left: 9px solid var(--md-text-dim); }
+      .md-item.is-active .md-arrow { opacity: 1; }
+      .md-list-header { margin: 12px 0 2px; padding-left: 6px; color: var(--md-text-dim); }
+      @keyframes md-open { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
+      @keyframes md-bob { 0% { transform: translateX(0); } 50% { transform: translateX(3px); } }
+      @keyframes screen-in { from { opacity: 0; } to { opacity: 1; } }
+
+      /* ---- Menu screens (src/app/screens.ts) ---- */
+      #app { min-height: 100vh; box-sizing: border-box; }
+      .screen { min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; padding: 40px 16px; animation: screen-in 180ms ease-out both; }
+      .title-logo { text-align: center; }
+      .title-logo h1 { margin: 0; font-size: var(--md-title); font-weight: 700; line-height: 1; color: #f2fbff; letter-spacing: 0.03em;
+        text-shadow: 0 4px 0 #1b6e8f, 0 8px 0 #0a2a45, 0 0 30px rgba(63, 208, 201, 0.5); }
+      .title-logo .title-alt { margin: 12px 0 0; color: var(--md-text-dim); letter-spacing: 0.3em; text-transform: uppercase; text-shadow: 0 2px 0 var(--md-ink); }
+      .title-menu { min-width: 17rem; }
+      .screen-title { margin: 0; font-size: var(--md-heading); color: var(--md-text); text-shadow: 0 3px 0 #1b6e8f, 0 6px 0 var(--md-ink); letter-spacing: 0.04em; }
+      .screen-row { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; justify-content: center; max-width: 100%; }
+      .hint { margin: 0; color: var(--md-text-dim); font-size: var(--md-small); text-shadow: 0 2px 0 var(--md-ink); text-align: center; }
+      .route { width: 30rem; max-width: 100%; }
+      .route-desc { min-height: 3.2em; margin-top: 14px !important; color: var(--md-text-dim); font-size: var(--md-small); }
+      .settings { width: 34rem; max-width: 100%; }
+      .controls { width: 30rem; max-width: 100%; }
+      .control-list { margin: 0; padding-left: 1.1em; font-size: var(--md-small); line-height: 1.35; color: var(--md-text-dim); }
+      .control-list li + li { margin-top: 4px; }
+      .credits { width: 40rem; max-width: 100%; }
+      .credits p { font-size: var(--md-small); }
+
+      /* ---- Battle (src/app/battle-screen.ts) ---- */
+      .battle { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; justify-content: center; padding: 28px 16px; box-sizing: border-box; animation: screen-in 180ms ease-out both; }
+      .board-column { display: flex; flex-direction: column; gap: 12px; max-width: 100%; }
+      .board { position: relative; border: 3px solid var(--md-border); border-radius: 10px; box-shadow: 0 0 0 3px var(--md-ink), 0 9px 0 3px rgba(0, 0, 0, 0.4); overflow: hidden; line-height: 0; }
+      canvas.board-canvas { display: block; max-width: 100%; height: auto; image-rendering: pixelated; image-rendering: crisp-edges; cursor: pointer; }
+      .menu-layer { position: absolute; inset: 0; pointer-events: none; line-height: 1.25; }
+      .action-menu { position: absolute; min-width: 9rem; padding: 12px 14px 10px; pointer-events: auto; }
+      aside.side { width: 21rem; max-width: 100%; display: flex; flex-direction: column; gap: 26px; padding-top: 14px; }
+      aside.side .md-window { padding: 18px 18px 12px; font-size: var(--md-small); }
+      aside.side .md-window-title { font-size: var(--md-small); }
+      .phase.player { color: #9cc0ff; } .phase.enemy { color: #ff9a92; }
+      .unit-name strong { font-size: var(--md-body); }
+      .unit-window.player .unit-name strong, .side-col.player h4 { color: #9cc0ff; }
+      .unit-window.enemy .unit-name strong, .side-col.enemy h4 { color: #ff9a92; }
+      .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px 10px; margin-top: 6px; color: var(--md-text-dim); }
+      .stats b { color: var(--md-text); font-weight: 400; }
+      .hp-row { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
+      .hp-bar { flex: 1; height: 8px; background: var(--md-bar-back); border: 2px solid var(--md-ink); border-radius: 3px; overflow: hidden; }
+      .hp-bar i { display: block; height: 100%; }
+      .hp-high { background: var(--md-hp); } .hp-mid { background: var(--md-hp-mid); } .hp-low { background: var(--md-hp-low); }
+      .terrain-name { color: var(--md-cursor); }
+      .sides { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .side-col h4 { margin: 0 0 4px; font-size: var(--md-small); }
+      .true-hit { margin: -2px 0 2px !important; font-size: 12px; }
+      .log p { margin: 2px 0; font-size: 14px; }
+      .overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(3, 4, 12, 0.72); z-index: 10; animation: screen-in 160ms ease-out both; }
       .overlay[hidden] { display: none; }
-      .screen { text-align: center; background: var(--card); border: 2px solid var(--line); border-radius: 10px; padding: 18px 28px; }
-      .screen.victory h1 { color: #ffd34d; } .screen.defeat h1 { color: var(--enemy); }
+      .pause-menu { min-width: 18rem; }
+      .result { min-width: 22rem; }
+      .result h1 { margin: 0 0 8px; font-size: var(--md-heading); }
+      .result.victory h1 { color: var(--md-cursor); }
+      .result.defeat h1 { color: var(--md-danger); }
+      .result-actions { margin-top: 16px; }
+      /* Last, so it overrides every animation above. */
+      @media (prefers-reduced-motion: reduce) { .md-window, .md-item.is-active .md-cursor, .screen, .battle, .overlay { animation: none; } }
     </style>
   </head>
   <body>

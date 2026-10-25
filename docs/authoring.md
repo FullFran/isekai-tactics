@@ -140,14 +140,14 @@ A route is a difficulty variant of the same map. Put enemies shared by both rout
 
 1. `src/data/rules.ts`, in `terrains`: `terrain(id, avoid, def, healPct, [foot, armor, mounted, flier])`; a cost of `null` means that movement type cannot enter.
 2. Add `"terrain.<id>"` to both i18n files.
-3. Optional: a colour in `TERRAIN_COLOURS` (`src/adapters/canvas.ts`) and a tile in a local sprite pack.
+3. Optional: base, dark and light colours in `TERRAIN_COLOURS` (`src/adapters/canvas.ts`) and a tile in a local sprite pack.
 4. Use it in a chapter by adding a legend character.
 
 Changing numbers in existing classes, weapons or terrain changes game balance: say so explicitly when asking for it, and run `npm test` afterwards.
 
 ## Sprite packs (local only)
 
-The committed art is placeholder shapes. To try other sprites privately (including third-party sprites you must not redistribute), put a **sprite pack** in `assets-local/` at the project root. That folder is git-ignored: it is never committed, and normal builds leave it out.
+The committed art is drawn in code (procedural terrain tiles and unit tokens). To try other sprites privately (including third-party sprites you must not redistribute), put a **sprite pack** in `assets-local/` at the project root. That folder is git-ignored: it is never committed, and normal builds leave it out.
 
 1. Copy the template: `mkdir -p assets-local && cp docs/sprite-pack.example.json assets-local/pack.json`.
 2. Put your PNG sheets next to it (paths in the manifest are relative to `assets-local/`).

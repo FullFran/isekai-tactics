@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render } from '../../src/adapters/canvas';
+import { render, type RenderOptions } from '../../src/adapters/canvas';
 import { imageKey, loadSpritePack, type LoaderDeps, type LoadedSprites } from '../../src/adapters/sprites';
 import { Controller } from '../../src/app/controller';
+import { baseViews, frameAt } from '../../src/app/presenter';
 import { validateSpritePack } from '../../src/core/spritePack';
 import { CHAPTERS, SAMPLE_CHAPTER_ID } from '../../src/data/chapters';
 
@@ -61,6 +62,7 @@ function recordingContext() {
   const ctx = new Proxy({} as Record<string | symbol, unknown>, {
     get(target, prop) {
       if (prop === 'canvas') return { width: 1000, height: 1000 };
+      if (prop === 'createLinearGradient') return () => ({ addColorStop() {} });
       if (prop in target) return target[prop];
       return (...args: unknown[]) => calls.push({ method: String(prop), args });
     },
@@ -74,10 +76,19 @@ function recordingContext() {
 
 describe('render with a sprite pack', () => {
   const controller = () => new Controller(CHAPTERS[SAMPLE_CHAPTER_ID], 'easy', 1);
+  const options = (c: Controller, sprites: LoadedSprites | null): RenderOptions => ({
+    sprites,
+    frame: frameAt(baseViews(c.state, (id) => c.unit(id).pos), [], 0),
+    cursor: c.cursor,
+    grid: true,
+    timeMs: 0,
+    animating: false,
+  });
 
   it('draws only placeholder shapes without a pack', () => {
     const { ctx, calls } = recordingContext();
-    render(ctx, controller());
+    const c = controller();
+    render(ctx, c, options(c, null));
     expect(calls.filter((c) => c.method === 'drawImage')).toEqual([]);
     expect(calls.filter((c) => c.method === 'arc')).toHaveLength(4);
   });
@@ -90,7 +101,7 @@ describe('render with a sprite pack', () => {
     const sprites: LoadedSprites = { pack: result.pack, images: new Map<string, CanvasImageSource>([[imageKey('lord.png', null), lord as never], [imageKey('tiles.png', null), tiles as never]]) };
     const c = controller();
     const { ctx, calls } = recordingContext();
-    render(ctx, c, sprites, 0);
+    render(ctx, c, options(c, sprites));
     const drawn = calls.filter((x) => x.method === 'drawImage').map((x) => x.args[0]);
     const plains = c.state.grid.tiles.filter((t) => t === 'plain').length;
     expect(drawn.filter((img) => img === tiles)).toHaveLength(plains);

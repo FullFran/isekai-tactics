@@ -64,3 +64,22 @@ describe('attackRange', () => {
     expect(keys(bow)).toEqual(['0,1', '1,0', '1,2', '3,0', '3,2', '4,1']);
   });
 });
+
+describe('pathTo', () => {
+  it('returns a cheapest step-by-step path from the unit to a destination, start included', async () => {
+    const { pathTo } = await import('../../src/core/movement');
+    const grid = parseGrid(['.F..', '.#..', '....'], legend);
+    const path = pathTo({ grid, terrains, units: [] }, mover({ stats: { mov: 4 } }), { x: 2, y: 1 });
+    expect(path[0]).toEqual({ x: 0, y: 0 });
+    expect(path.at(-1)).toEqual({ x: 2, y: 1 });
+    for (let i = 1; i < path.length; i++) expect(Math.abs(path[i]!.x - path[i - 1]!.x) + Math.abs(path[i]!.y - path[i - 1]!.y)).toBe(1);
+    expect(path.some((p) => p.x === 1 && p.y === 1)).toBe(false);
+  });
+
+  it('returns just the start when the destination is the unit tile or unreachable', async () => {
+    const { pathTo } = await import('../../src/core/movement');
+    const grid = parseGrid(['....'], legend);
+    expect(pathTo({ grid, terrains, units: [] }, mover(), { x: 0, y: 0 })).toEqual([{ x: 0, y: 0 }]);
+    expect(pathTo({ grid, terrains, units: [] }, mover({ stats: { mov: 1 } }), { x: 3, y: 0 })).toEqual([{ x: 0, y: 0 }]);
+  });
+});
