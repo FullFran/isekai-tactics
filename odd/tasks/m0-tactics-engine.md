@@ -34,7 +34,7 @@ Out of scope: supports, fog, rescue, promotion, shops, weapon ranks, rewind UI, 
 
 ## Tasks
 - [x] T1 Scaffold: Vite + TS strict + Vitest, layout (`src/core`, `src/data`, `src/adapters`, `src/app`, `src/i18n`), DOM-free core tsconfig, i18n es/en with missing-key test, npm scripts, README. Route: delegated (writer).
-- [ ] T2 Seeded RNG, grid/terrain, movement and attack range. TDD. Route: delegated.
+- [x] T2 Seeded RNG, grid/terrain, movement and attack range. TDD. Route: delegated.
 - [ ] T3 Stats, classes, weapons, triangle; combat forecast and resolution (2RN hit, 1RN crit, doubling). TDD. Route: delegated.
 - [ ] T4 Phase loop, actions, action log, retreat hook, lord-loss failure, rout/seize objectives. TDD. Route: delegated.
 - [ ] T5 Enemy AI v1 (charge, inRange, guard) with deterministic scoring. TDD. Route: delegated.
@@ -55,6 +55,7 @@ Route trigger evidence: every task touches 2+ non-trivial files (writer trigger)
 
 ## Progress / evidence
 - T1 a14f6d6 chore: scaffold Vite + TypeScript strict + Vitest with DOM-free core and i18n. npm test: 2 files, 7 tests passed. typecheck: clean. build: ok. Test-first exception: scaffold, no behaviour (i18n/layering tests written with it).
+- T2 ee8f7ba feat(core): add seeded RNG, terrain grid, movement and attack ranges. RED observed (modules missing). npm test: 4 files, 16 tests passed. typecheck: clean. build: ok.
 
 ## Next step
-T2.
+T3.
