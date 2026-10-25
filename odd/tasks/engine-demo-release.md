@@ -27,7 +27,7 @@ Out of scope: new chapters, music (no licensed tracks chosen yet), story content
 
 ## Tasks
 - [x] T1 UI and controls parity: title, settings, credits, panels, font, input mapping, controls hint, juice, presentable placeholder art, route select. Tests for pure pieces (input mapping, animation timing/queues, view-model). Route: delegated (writer).
-- [ ] T2 Pages workflow, relative base, README demo/controls section; verify `dist/` has no `assets-local`. Route: delegated (same writer).
+- [x] T2 Pages workflow, relative base, README demo/controls section; verify `dist/` has no `assets-local`. Route: delegated (same writer).
 - [ ] T3 Create remote, push main, deploy, verify live bundle. Route: parent; blocked on user authorization of destination.
 
 ## Acceptance criteria
@@ -40,6 +40,7 @@ Out of scope: new chapters, music (no licensed tracks chosen yet), story content
 
 ## Progress / evidence
 - T1 `1ccaf3e` (delegated writer). RED observed first for `pathTo`, `battleCommand`, settings, hud, presenter, ported nav and `nextReadyUnit` tests; then GREEN. Checks: `npm test` 20 files / 120 tests pass, `npm run typecheck` ok, `npm run build` ok, `npm run validate` "content ok". Smoke: headless Firefox screenshots of the built title screen and `?route=easy` battle render correctly (keyboard/mouse flows not driven: no automation browser). Decisions: A/W/S action hotkeys dropped because WASD now moves the cursor (the action menu is a W/S cursor list instead); Tab added (next ready unit); `?route=` deep link added for links and smoke checks. Larger than the 400-line heuristic (~1,900 authored lines incl. the ported UI kit and CSS) because the UI kit, renderer and presenter only make sense together.
+- T2 `b1baf56` (delegated writer). No RED: CI config and docs, no runnable behaviour. Checks: `npm test` 20 files / 120 tests, typecheck ok, build ok, validate "content ok". A normal build (with the dummy pack present in `assets-local/`) leaves `dist/` with only `index.html`, `assets/index-*.js` and `fonts/` (no `assets-local`); `index.html` references `./assets/…` (relative base). Workflow uses Node 24 (one dependency needs ^22.20 or ^24.12) and adds a `test ! -e dist/assets-local` guard. YAML not executed (no remote, no local runner).
 
 ## Next step
-T2.
+T3 (parent): needs user authorization of the remote destination and visibility.
