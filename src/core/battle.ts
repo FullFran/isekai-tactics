@@ -2,8 +2,9 @@ import { forecastCombat, inWeaponRange, resolveCombat, weaponOf, type CombatResu
 import { samePoint, terrainAt, type Grid, type Point } from './grid';
 import { moveRange, type Faction, type World } from './movement';
 import { clone } from './clone';
+import { combatExp, gainExp } from './exp';
 import { createRng, type Rng } from './rng';
-import type { Rules, Unit } from './unit';
+import type { Rules, Stats, Unit } from './unit';
 
 export type Objective = { type: 'rout' } | { type: 'seize'; tile: Point };
 
@@ -27,6 +28,8 @@ export type Action =
 
 export type BattleEvent =
   | { type: 'combat'; attackerId: string; defenderId: string; result: CombatResult }
+  | { type: 'exp'; unitId: string; amount: number }
+  | { type: 'levelUp'; unitId: string; level: number; gains: Stats }
   | { type: 'retreat'; unitId: string }
   | { type: 'defeated'; unitId: string }
   | { type: 'phase'; phase: Faction; turn: number }
@@ -119,6 +122,7 @@ export function applyAction(rules: Rules, previous: BattleState, action: Action)
       target.hp = result.defenderHp;
       state.events.push({ type: 'combat', attackerId: unit.id, defenderId: target.id, result });
       for (const u of [unit, target]) if (u.hp <= 0) onUnitDefeated(state, u);
+      awardCombatExp(state, unit, target, result);
       unit.moved = true;
       unit.acted = true;
       break;
@@ -173,6 +177,19 @@ function onUnitDefeated(state: BattleState, unit: Unit): void {
   }
   if (state.config.wound.enabled) unit.wound = { penaltyPct: state.config.wound.penaltyPct };
   state.events.push({ type: 'retreat', unitId: unit.id });
+}
+
+/** Player units that are still on the map gain EXP from the exchange they fought. */
+function awardCombatExp(state: BattleState, a: Unit, b: Unit, result: CombatResult): void {
+  for (const [own, foe] of [[a, b], [b, a]] as const) {
+    if (own.faction !== 'player' || own.status !== 'active') continue;
+    const dealtDamage = result.strikes.some((s) => s.attackerId === own.id && s.damage > 0);
+    const amount = combatExp(own, foe, { dealtDamage, killed: foe.status !== 'active' });
+    const levelBefore = own.level;
+    const ups = gainExp(own, amount, state.rng);
+    state.events.push({ type: 'exp', unitId: own.id, amount });
+    ups.forEach((gains, i) => state.events.push({ type: 'levelUp', unitId: own.id, level: levelBefore + i + 1, gains }));
+  }
 }
 
 function finish(state: BattleState, outcome: Outcome): void {
