@@ -50,10 +50,53 @@ describe('loadSpritePack', () => {
   it('loads sheets relative to the manifest, tints variants and skips sheets that fail', async () => {
     const d = deps(() => Promise.resolve(response(JSON.stringify(manifest))));
     const loaded = await loadSpritePack(url, d);
-    expect(loaded?.images.get(imageKey('lord.png', null))).toEqual({ url: 'http://localhost/assets-local/lord.png' });
-    expect(loaded?.images.get(imageKey('lord.png', '#e04848'))).toMatchObject({ colour: '#e04848' });
-    expect(loaded?.images.has(imageKey('missing.png', null))).toBe(false);
+    const lord = 'http://localhost/assets-local/lord.png';
+    expect(loaded?.images.get(imageKey(lord, null))).toEqual({ url: lord });
+    expect(loaded?.images.get(imageKey(lord, '#e04848'))).toMatchObject({ colour: '#e04848' });
+    expect(loaded?.images.has(imageKey('http://localhost/assets-local/missing.png', null))).toBe(false);
     expect(d.warnings.join('\n')).toMatch(/missing\.png/);
+  });
+
+  describe('with a default pack and a local pack', () => {
+    const defaultUrl = 'http://localhost/sprites/dawnlike/pack.json';
+    const defaultPack = {
+      version: 1,
+      classes: { lord: { sheet: 'units.png', frameWidth: 16, frameHeight: 16, idle: { row: 0, frames: 1, frameMs: 100 } }, mage: { sheet: 'units.png', frameWidth: 16, frameHeight: 16, idle: { row: 1, frames: 1, frameMs: 100 } } },
+      terrain: { plain: { sheet: 'terrain.png', col: 0, row: 0 }, river: { sheet: 'terrain.png', col: 7, row: 0 } },
+    };
+    const serve = (packs: Record<string, unknown>) => (input: unknown) => {
+      const body = packs[String(input)];
+      return Promise.resolve(body === undefined ? response('<!doctype html>', 200, 'text/html') : response(JSON.stringify(body)));
+    };
+
+    it('merges the local pack over the default one per item, each sheet relative to its own manifest', async () => {
+      const d = deps(serve({ [defaultUrl]: defaultPack, [url]: manifest }) as never);
+      const loaded = await loadSpritePack([defaultUrl, url], d);
+      expect(loaded?.pack.classes.lord?.sheet).toBe('http://localhost/assets-local/lord.png');
+      expect(loaded?.pack.classes.mage?.sheet).toBe('http://localhost/sprites/dawnlike/units.png');
+      expect(loaded?.pack.terrain.plain?.sheet).toBe('http://localhost/assets-local/tiles.png');
+      expect(loaded?.pack.terrain.river?.sheet).toBe('http://localhost/sprites/dawnlike/terrain.png');
+      expect(loaded?.images.get(imageKey('http://localhost/sprites/dawnlike/units.png', null))).toEqual({ url: 'http://localhost/sprites/dawnlike/units.png' });
+    });
+
+    it('uses the default pack alone, silently, when there is no local pack', async () => {
+      const d = deps(serve({ [defaultUrl]: defaultPack }) as never);
+      const loaded = await loadSpritePack([defaultUrl, url], d);
+      expect(loaded?.pack.classes.lord?.sheet).toBe('http://localhost/sprites/dawnlike/units.png');
+      expect(d.warnings).toEqual([]);
+    });
+
+    it('skips an invalid pack with a warning and keeps the valid one', async () => {
+      const d = deps(serve({ [defaultUrl]: defaultPack, [url]: { version: 9 } }) as never);
+      const loaded = await loadSpritePack([defaultUrl, url], d);
+      expect(loaded?.pack.classes.lord?.sheet).toBe('http://localhost/sprites/dawnlike/units.png');
+      expect(d.warnings.join('\n')).toMatch(/assets-local.*version/s);
+    });
+
+    it('returns null when neither pack exists', async () => {
+      const d = deps(serve({}) as never);
+      expect(await loadSpritePack([defaultUrl, url], d)).toBeNull();
+    });
   });
 });
 

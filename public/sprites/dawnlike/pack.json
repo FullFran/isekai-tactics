@@ -1,0 +1,274 @@
+{
+  "version": 1,
+  "name": "DawnLike (CC-BY 4.0, DragonDePlatino; palette DawnBringer)",
+  "tileSize": 16,
+  "classes": {
+    "lord": {
+      "sheet": "units.png",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "idle": {
+        "row": 0,
+        "frames": 2,
+        "frameMs": 500
+      },
+      "moving": {
+        "row": 0,
+        "col": 2,
+        "frames": 4,
+        "frameMs": 150
+      },
+      "factions": {
+        "enemy": {
+          "sheet": "units-enemy.png",
+          "tint": "#e04848"
+        }
+      }
+    },
+    "mercenary": {
+      "sheet": "units.png",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "idle": {
+        "row": 1,
+        "frames": 2,
+        "frameMs": 500
+      },
+      "moving": {
+        "row": 1,
+        "col": 2,
+        "frames": 4,
+        "frameMs": 150
+      },
+      "factions": {
+        "enemy": {
+          "sheet": "units-enemy.png",
+          "tint": "#e04848"
+        }
+      }
+    },
+    "myrmidon": {
+      "sheet": "units.png",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "idle": {
+        "row": 2,
+        "frames": 2,
+        "frameMs": 500
+      },
+      "moving": {
+        "row": 2,
+        "col": 2,
+        "frames": 4,
+        "frameMs": 150
+      },
+      "factions": {
+        "enemy": {
+          "sheet": "units-enemy.png",
+          "tint": "#e04848"
+        }
+      }
+    },
+    "soldier": {
+      "sheet": "units.png",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "idle": {
+        "row": 3,
+        "frames": 2,
+        "frameMs": 500
+      },
+      "moving": {
+        "row": 3,
+        "col": 2,
+        "frames": 4,
+        "frameMs": 150
+      },
+      "factions": {
+        "enemy": {
+          "sheet": "units-enemy.png",
+          "tint": "#e04848"
+        }
+      }
+    },
+    "knight": {
+      "sheet": "units.png",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "idle": {
+        "row": 4,
+        "frames": 2,
+        "frameMs": 600
+      },
+      "moving": {
+        "row": 4,
+        "col": 2,
+        "frames": 4,
+        "frameMs": 150
+      },
+      "factions": {
+        "enemy": {
+          "sheet": "units-enemy.png",
+          "tint": "#e04848"
+        }
+      }
+    },
+    "cavalier": {
+      "sheet": "units.png",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "idle": {
+        "row": 5,
+        "frames": 2,
+        "frameMs": 500
+      },
+      "moving": {
+        "row": 5,
+        "col": 2,
+        "frames": 4,
+        "frameMs": 150
+      },
+      "factions": {
+        "enemy": {
+          "sheet": "units-enemy.png",
+          "tint": "#e04848"
+        }
+      }
+    },
+    "fighter": {
+      "sheet": "units.png",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "idle": {
+        "row": 6,
+        "frames": 2,
+        "frameMs": 600
+      },
+      "moving": {
+        "row": 6,
+        "col": 2,
+        "frames": 4,
+        "frameMs": 150
+      },
+      "factions": {
+        "enemy": {
+          "sheet": "units-enemy.png",
+          "tint": "#e04848"
+        }
+      }
+    },
+    "brigand": {
+      "sheet": "units.png",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "idle": {
+        "row": 7,
+        "frames": 2,
+        "frameMs": 500
+      },
+      "moving": {
+        "row": 7,
+        "col": 2,
+        "frames": 4,
+        "frameMs": 150
+      },
+      "factions": {
+        "enemy": {
+          "sheet": "units-enemy.png",
+          "tint": "#e04848"
+        }
+      }
+    },
+    "archer": {
+      "sheet": "units.png",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "idle": {
+        "row": 8,
+        "frames": 2,
+        "frameMs": 500
+      },
+      "moving": {
+        "row": 8,
+        "col": 2,
+        "frames": 4,
+        "frameMs": 150
+      },
+      "factions": {
+        "enemy": {
+          "sheet": "units-enemy.png",
+          "tint": "#e04848"
+        }
+      }
+    },
+    "mage": {
+      "sheet": "units.png",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "idle": {
+        "row": 9,
+        "frames": 2,
+        "frameMs": 600
+      },
+      "moving": {
+        "row": 9,
+        "col": 2,
+        "frames": 4,
+        "frameMs": 150
+      },
+      "factions": {
+        "enemy": {
+          "sheet": "units-enemy.png",
+          "tint": "#e04848"
+        }
+      }
+    }
+  },
+  "terrain": {
+    "plain": {
+      "sheet": "terrain.png",
+      "col": 0,
+      "row": 0
+    },
+    "road": {
+      "sheet": "terrain.png",
+      "col": 1,
+      "row": 0
+    },
+    "forest": {
+      "sheet": "terrain.png",
+      "col": 2,
+      "row": 0
+    },
+    "hill": {
+      "sheet": "terrain.png",
+      "col": 3,
+      "row": 0
+    },
+    "village": {
+      "sheet": "terrain.png",
+      "col": 4,
+      "row": 0
+    },
+    "fort": {
+      "sheet": "terrain.png",
+      "col": 5,
+      "row": 0
+    },
+    "gate": {
+      "sheet": "terrain.png",
+      "col": 6,
+      "row": 0
+    },
+    "river": {
+      "sheet": "terrain.png",
+      "col": 7,
+      "row": 0
+    },
+    "wall": {
+      "sheet": "terrain.png",
+      "col": 8,
+      "row": 0
+    }
+  }
+}

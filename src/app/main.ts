@@ -35,7 +35,7 @@ void document.fonts?.load(`22px "${FONT.family}"`);
 const root = document.getElementById('app')!;
 const controller = new Controller(CHAPTERS[SAMPLE_CHAPTER_ID], 'easy', 1);
 
-// Optional local sprite pack (git-ignored assets-local/); without one the procedural art stays.
+// Committed default sprite pack, with the optional git-ignored assets-local/ pack layered on top; unmapped items keep the procedural art.
 let sprites: LoadedSprites | null = null;
 void loadSpritePack().then((loaded) => {
   sprites = loaded;

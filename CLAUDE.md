@@ -6,7 +6,7 @@ Original-IP browser tactics RPG (GBA grid-tactics style). TypeScript strict, Vit
 
 - `src/core`: pure simulation. No DOM, no rendering, no I/O. Enforced by `tsconfig.core.json` (no DOM lib) and `tests/architecture.test.ts`.
 - `src/data`: content (rule tables in `rules.ts`, chapters in `chapters/*.json`). Pure data, no DOM.
-- `src/adapters`: Canvas rendering, input, sprite-pack loading. `src/app`: browser entry and UI flow. `src/i18n`: UI strings (Spanish is the source; English must have the same keys).
+- `src/adapters`: Canvas rendering, input, sprite-pack loading; `src/adapters/ui`: windows, cursor menus and UI tokens. `src/app`: browser entry and UI flow. `src/i18n`: UI strings (Spanish is the source; English must have the same keys).
 - `tools/`: Node CLIs (`npm run validate`).
 - Dependencies point inward: adapters/app → core/data, never the reverse.
 
@@ -18,8 +18,9 @@ Original-IP browser tactics RPG (GBA grid-tactics style). TypeScript strict, Vit
 
 ## Original IP and assets
 
-- No third-party names, characters, maps or art in the repository. Placeholder shapes are the committed art.
-- Third-party sprites (e.g. for private tests) live only in git-ignored `assets-local/` as a sprite pack (format: `docs/authoring.md`, template: `docs/sprite-pack.example.json`); the renderer falls back to placeholders per item. Never commit, copy or reference their files elsewhere; check `git status` before committing.
+- No third-party names, characters or maps in the repository.
+- Committed art must be openly licensed (CC0/CC-BY or similar) and credited in `CREDITS.md` and the in-game credits (`credits.art`). The committed default sprite pack is DawnLike (CC-BY 4.0) in `public/sprites/dawnlike/` (cells listed in its `SOURCES.txt`); procedural placeholders draw anything it does not map.
+- Private or unlicensed sprites live only in git-ignored `assets-local/` as a sprite pack (format: `docs/authoring.md`, template: `docs/sprite-pack.example.json`); it is layered over the default pack per item. Never commit, copy or reference its files elsewhere; check `git status` before committing.
 
 ## Working rules
 

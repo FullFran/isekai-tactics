@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_ENEMY_TINT, frameIndex, spriteVariants, tileSprite, unitSprite, validateSpritePack, type SpritePack } from '../../src/core/spritePack';
+import { DEFAULT_ENEMY_TINT, frameIndex, mergeSpritePacks, rebaseSheets, spriteVariants, tileSprite, unitSprite, validateSpritePack, type SpritePack } from '../../src/core/spritePack';
 
 const manifest = () => ({
   version: 1,
@@ -67,7 +67,7 @@ describe('frameIndex', () => {
 describe('unitSprite', () => {
   it('maps the class, picks the frame from the animation and falls back to null when unmapped', () => {
     const p = pack();
-    expect(unitSprite(p, { id: 'lio', classId: 'lord', faction: 'player' }, 'idle', 450)).toEqual({ sheet: 'units/lord.png', sx: 32, sy: 0, sw: 16, sh: 16, tint: null });
+    expect(unitSprite(p, { id: 'lio', classId: 'lord', faction: 'player' }, 'idle', 450)).toEqual({ sheet: 'units/lord.png', sx: 32, sy: 0, sw: 16, sh: 16, tileSize: 16, tint: null });
     expect(unitSprite(p, { id: 'lio', classId: 'lord', faction: 'player' }, 'moving', 150)).toMatchObject({ sx: 16, sy: 16 });
     expect(unitSprite(p, { id: 'x', classId: 'mage', faction: 'player' }, 'idle', 0)).toBeNull();
   });
@@ -90,7 +90,7 @@ describe('unitSprite', () => {
 
 describe('tileSprite and spriteVariants', () => {
   it('maps terrain tiles by tile size and falls back to null', () => {
-    expect(tileSprite(pack(), 'forest')).toEqual({ sheet: 'tiles.png', sx: 48, sy: 16, sw: 16, sh: 16, tint: null });
+    expect(tileSprite(pack(), 'forest')).toEqual({ sheet: 'tiles.png', sx: 48, sy: 16, sw: 16, sh: 16, tileSize: 16, tint: null });
     expect(tileSprite(pack(), 'plain')).toBeNull();
   });
 
@@ -106,10 +106,66 @@ describe('tileSprite and spriteVariants', () => {
   });
 });
 
+describe('mergeSpritePacks', () => {
+  const base = (): SpritePack => ({
+    ...pack(),
+    tileSize: 16,
+    units: {},
+    terrain: { plain: { sheet: 'base/tiles.png', col: 0, row: 0 }, forest: { sheet: 'base/tiles.png', col: 1, row: 0 } },
+  });
+  const local = (): SpritePack => {
+    const result = validateSpritePack({
+      version: 1,
+      tileSize: 32,
+      classes: { lord: { sheet: 'local/lord.png', frameWidth: 32, frameHeight: 32, idle: { row: 0, frames: 1, frameMs: 100 } } },
+      terrain: { forest: { sheet: 'local/tiles.png', col: 2, row: 1 } },
+    });
+    if (!result.ok) throw new Error(result.errors.join('\n'));
+    return result.pack;
+  };
+
+  it('lets later packs win per item and keeps the rest of earlier packs', () => {
+    const merged = mergeSpritePacks([base(), local()]);
+    expect(merged.classes.lord?.sheet).toBe('local/lord.png');
+    expect(merged.classes.knight?.sheet).toBe('units/knight.png');
+    expect(merged.terrain.forest?.sheet).toBe('local/tiles.png');
+    expect(merged.terrain.plain?.sheet).toBe('base/tiles.png');
+  });
+
+  it('keeps each item at the tile size of the pack it came from', () => {
+    const merged = mergeSpritePacks([base(), local()]);
+    expect(tileSprite(merged, 'forest')).toMatchObject({ sx: 64, sy: 32, sw: 32, sh: 32, tileSize: 32 });
+    expect(tileSprite(merged, 'plain')).toMatchObject({ sx: 0, sw: 16, tileSize: 16 });
+    expect(unitSprite(merged, { id: 'x', classId: 'lord', faction: 'player' }, 'idle', 0)).toMatchObject({ sw: 32, tileSize: 32 });
+    expect(unitSprite(merged, { id: 'x', classId: 'knight', faction: 'player' }, 'idle', 0)).toMatchObject({ sw: 32, tileSize: 16 });
+  });
+
+  it('rebases every sheet, including faction sheets', () => {
+    const rebased = rebaseSheets(pack(), (sheet) => `http://x/${sheet}`);
+    expect(rebased.classes.knight?.sheet).toBe('http://x/units/knight.png');
+    expect(rebased.classes.knight?.factions?.enemy?.sheet).toBe('http://x/units/knight-red.png');
+    expect(rebased.classes.knight?.factions?.player).toEqual({ tint: '#3060ff' });
+    expect(rebased.terrain.forest?.sheet).toBe('http://x/tiles.png');
+    expect(pack().classes.knight?.sheet).toBe('units/knight.png');
+  });
+});
+
 describe('docs/sprite-pack.example.json', () => {
   it('is a valid manifest', async () => {
     const { readFileSync } = await import('node:fs');
     const result = validateSpritePack(JSON.parse(readFileSync('docs/sprite-pack.example.json', 'utf8')));
     expect(result.ok ? [] : result.errors).toEqual([]);
+  });
+});
+
+describe('public/sprites/dawnlike/pack.json (committed default pack)', () => {
+  it('is valid and maps every class and every terrain of the sample chapter', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { RULES } = await import('../../src/data/rules');
+    const chapter = JSON.parse(readFileSync('src/data/chapters/sample.json', 'utf8')) as { map: { legend: Record<string, string> } };
+    const result = validateSpritePack(JSON.parse(readFileSync('public/sprites/dawnlike/pack.json', 'utf8')));
+    if (!result.ok) throw new Error(result.errors.join('\n'));
+    expect(Object.keys(result.pack.classes).sort()).toEqual(Object.keys(RULES.classes).sort());
+    for (const terrain of Object.values(chapter.map.legend)) expect(result.pack.terrain[terrain], terrain).toBeDefined();
   });
 });

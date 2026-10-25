@@ -1,8 +1,8 @@
 import type { Faction } from './movement';
 
 /**
- * Sprite pack manifest (`assets-local/pack.json`): maps classes, unit ids and
- * terrain to cells of sprite sheets. Anything not mapped keeps the placeholder art.
+ * Sprite pack manifest (`public/sprites/<pack>/pack.json`, `assets-local/pack.json`): maps
+ * classes, unit ids and terrain to cells of sprite sheets. Anything not mapped keeps the placeholder art.
  */
 export interface SpriteAnim {
   row: number;
@@ -28,6 +28,8 @@ export interface UnitSpriteDef {
   /** Played while the unit is selected or being moved; defaults to `idle`. */
   moving?: SpriteAnim;
   factions?: Partial<Record<Faction, FactionLook>>;
+  /** Source tile size of this item; set by `mergeSpritePacks`, defaults to the pack's `tileSize`. */
+  tileSize?: number;
 }
 
 export interface TileSpriteDef {
@@ -35,6 +37,8 @@ export interface TileSpriteDef {
   /** Cell position in units of `tileSize`. */
   col: number;
   row: number;
+  /** See `UnitSpriteDef.tileSize`. */
+  tileSize?: number;
 }
 
 export interface SpritePack {
@@ -53,6 +57,8 @@ export interface SpriteFrame {
   sy: number;
   sw: number;
   sh: number;
+  /** Source pixel size of one map tile for this frame (scale = map tile / tileSize). */
+  tileSize: number;
   tint: string | null;
 }
 
@@ -87,8 +93,12 @@ export function validateSpritePack(raw: unknown): SpritePackResult {
     if (!isInt(v.frameMs, 1)) err(`${path}.frameMs`, 'must be an integer >= 1');
     if (v.pingPong !== undefined && typeof v.pingPong !== 'boolean') err(`${path}.pingPong`, 'must be a boolean');
   };
+  const itemTileSize = (path: string, v: Obj) => {
+    if (v.tileSize !== undefined && !isInt(v.tileSize, 1)) err(`${path}.tileSize`, 'must be an integer >= 1');
+  };
   const unitDef = (path: string, v: unknown) => {
     if (!isObj(v)) return err(path, 'must be an object');
+    itemTileSize(path, v);
     sheet(`${path}.sheet`, v.sheet);
     for (const key of ['frameWidth', 'frameHeight'] as const) if (!isInt(v[key], 1)) err(`${path}.${key}`, 'must be an integer >= 1');
     anim(`${path}.idle`, v.idle);
@@ -107,6 +117,7 @@ export function validateSpritePack(raw: unknown): SpritePackResult {
   };
   const tileDef = (path: string, v: unknown) => {
     if (!isObj(v)) return err(path, 'must be an object');
+    itemTileSize(path, v);
     sheet(`${path}.sheet`, v.sheet);
     for (const key of ['col', 'row'] as const) if (!isInt(v[key], 0)) err(`${path}.${key}`, 'must be an integer >= 0');
   };
@@ -160,14 +171,52 @@ export function unitSprite(
   if (!def) return null;
   const anim = (motion === 'moving' && def.moving) || def.idle;
   const col = (anim.col ?? 0) + frameIndex(anim, timeMs);
-  return { ...look(def, unit.faction), sx: col * def.frameWidth, sy: anim.row * def.frameHeight, sw: def.frameWidth, sh: def.frameHeight };
+  const { sheet, tint } = look(def, unit.faction);
+  return { sheet, sx: col * def.frameWidth, sy: anim.row * def.frameHeight, sw: def.frameWidth, sh: def.frameHeight, tileSize: def.tileSize ?? pack.tileSize, tint };
 }
 
 export function tileSprite(pack: SpritePack, terrainId: string): SpriteFrame | null {
   const def = pack.terrain[terrainId];
   if (!def) return null;
-  const size = pack.tileSize;
-  return { sheet: def.sheet, sx: def.col * size, sy: def.row * size, sw: size, sh: size, tint: null };
+  const size = def.tileSize ?? pack.tileSize;
+  return { sheet: def.sheet, sx: def.col * size, sy: def.row * size, sw: size, sh: size, tileSize: size, tint: null };
+}
+
+/** A copy of the pack with every sheet path passed through `resolve` (e.g. to make it absolute). */
+export function rebaseSheets(pack: SpritePack, resolve: (sheet: string) => string): SpritePack {
+  const unit = (def: UnitSpriteDef): UnitSpriteDef => {
+    if (!def.factions) return { ...def, sheet: resolve(def.sheet) };
+    const factions: Partial<Record<Faction, FactionLook>> = {};
+    for (const [faction, l] of Object.entries(def.factions) as Array<[Faction, FactionLook]>) {
+      factions[faction] = l.sheet === undefined ? { ...l } : { ...l, sheet: resolve(l.sheet) };
+    }
+    return { ...def, sheet: resolve(def.sheet), factions };
+  };
+  const map = <T, U>(items: Record<string, T>, f: (v: T) => U) => Object.fromEntries(Object.entries(items).map(([id, v]) => [id, f(v)]));
+  return {
+    ...pack,
+    classes: map(pack.classes, unit),
+    units: map(pack.units, unit),
+    terrain: map(pack.terrain, (def) => ({ ...def, sheet: resolve(def.sheet) })),
+  };
+}
+
+/**
+ * Layers packs in order: a later pack wins per class, unit and terrain id. Each item keeps the
+ * tile size of the pack it came from. Sheets should already be rebased to a common root.
+ */
+export function mergeSpritePacks(packs: readonly SpritePack[]): SpritePack {
+  const merged: SpritePack = { version: 1, tileSize: packs[0]?.tileSize ?? 16, classes: {}, units: {}, terrain: {} };
+  for (const pack of packs) {
+    const stamp = <T extends { tileSize?: number }>(items: Record<string, T>, into: Record<string, T>) => {
+      for (const [id, def] of Object.entries(items)) into[id] = { ...def, tileSize: def.tileSize ?? pack.tileSize };
+    };
+    stamp(pack.classes, merged.classes);
+    stamp(pack.units, merged.units);
+    stamp(pack.terrain, merged.terrain);
+    if (pack.name) merged.name = merged.name ? `${merged.name} + ${pack.name}` : pack.name;
+  }
+  return merged;
 }
 
 /** Every (sheet, tint) image the renderer may request; `doneTint` greys out units that have acted. */

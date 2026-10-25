@@ -2,7 +2,7 @@
 
 **Demo:** https://www.fullfran.com/isekai-tactics/ (the sample chapter, easy and hard routes; keyboard and mouse, Spanish and English).
 
-Browser tactics RPG engine for an original-IP story (grid tactics in the style of the GBA era: player phase / enemy phase, weapon triangle, 2RN hit). Mechanics only: no third-party names, maps, characters or assets.
+Browser tactics RPG engine for an original-IP story (grid tactics in the style of the GBA era: player phase / enemy phase, weapon triangle, 2RN hit). Mechanics only: no third-party names, maps or characters. The map art is the openly licensed DawnLike tileset (CC-BY 4.0, see [`CREDITS.md`](CREDITS.md)).
 
 ## Run
 
@@ -17,7 +17,7 @@ npm run validate   # check every chapter, rule table and UI name
 
 Deploy: `.github/workflows/deploy.yml` runs `npm test`, `npm run validate` and `npm run build` on every push to `main` (or by hand, *workflow_dispatch*) and publishes `dist/` to GitHub Pages. The build uses a relative base (`./`), so it works under any sub-path. `assets-local/` is git-ignored and left out of normal builds, so a sprite pack is never deployed (the workflow also checks it).
 
-Adding content (chapters, classes, weapons, terrain): see [`docs/authoring.md`](docs/authoring.md). Agent rules: [`CLAUDE.md`](CLAUDE.md). Local sprite packs (git-ignored `assets-local/`, placeholder fallback): see the *Sprite packs* section of the authoring guide.
+Adding content (chapters, classes, weapons, terrain): see [`docs/authoring.md`](docs/authoring.md). Agent rules: [`CLAUDE.md`](CLAUDE.md). Sprite packs (the committed default in `public/sprites/dawnlike/`, a private override in git-ignored `assets-local/`, placeholder fallback): see the *Sprite packs* section of the authoring guide.
 
 ## Play
 

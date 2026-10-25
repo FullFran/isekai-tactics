@@ -244,7 +244,7 @@ function drawUnitSprite(ctx: CanvasRenderingContext2D, sprites: LoadedSprites, u
   const frame = unitSprite(sprites.pack, u, motion, timeMs);
   const image = frame && sprites.images.get(imageKey(frame.sheet, done ? DONE_TINT : frame.tint));
   if (!frame || !image) return false;
-  const scale = TILE / sprites.pack.tileSize;
+  const scale = TILE / frame.tileSize;
   const w = frame.sw * scale;
   const h = frame.sh * scale;
   ctx.drawImage(image, frame.sx, frame.sy, frame.sw, frame.sh, px + (TILE - w) / 2, py + TILE - h, w, h);

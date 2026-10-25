@@ -1,8 +1,13 @@
-import { spriteVariants, validateSpritePack, type SpritePack } from '../core/spritePack';
+import { mergeSpritePacks, rebaseSheets, spriteVariants, validateSpritePack, type SpritePack } from '../core/spritePack';
 
 /** Grey laid over units that already acted this phase. */
 export const DONE_TINT = '#6b6f7a';
-export const DEFAULT_PACK_URL = './assets-local/pack.json';
+/** The committed default pack (openly licensed, see CREDITS.md). */
+export const DEFAULT_PACK_URL = './sprites/dawnlike/pack.json';
+/** The optional private pack (git-ignored, never deployed). */
+export const LOCAL_PACK_URL = './assets-local/pack.json';
+/** Later packs win per item. */
+export const PACK_URLS: readonly string[] = [DEFAULT_PACK_URL, LOCAL_PACK_URL];
 
 export interface LoadedSprites {
   pack: SpritePack;
@@ -20,10 +25,10 @@ export interface LoaderDeps {
 }
 
 /**
- * Loads a local sprite pack. No pack (404, offline, or the dev server's HTML
- * fallback) is the normal case and returns null without noise.
+ * Fetches and validates one manifest, with its sheets made absolute. A missing pack
+ * (404, offline, or the dev server's HTML fallback) returns null without noise.
  */
-export async function loadSpritePack(packUrl: string = DEFAULT_PACK_URL, deps: LoaderDeps = browserDeps()): Promise<LoadedSprites | null> {
+async function fetchPack(packUrl: string, deps: LoaderDeps): Promise<SpritePack | null> {
   let response: Response;
   try {
     response = await deps.fetch(packUrl, { cache: 'no-store' });
@@ -36,22 +41,34 @@ export async function loadSpritePack(packUrl: string = DEFAULT_PACK_URL, deps: L
   try {
     raw = await response.json();
   } catch (e) {
-    deps.warn(`sprite pack: invalid JSON in ${packUrl} (${(e as Error).message}); using placeholder art`);
+    deps.warn(`sprite pack: invalid JSON in ${packUrl} (${(e as Error).message}); skipping it`);
     return null;
   }
   const result = validateSpritePack(raw);
   if (!result.ok) {
-    deps.warn(`sprite pack: ${packUrl} is invalid; using placeholder art\n${result.errors.join('\n')}`);
+    deps.warn(`sprite pack: ${packUrl} is invalid; skipping it\n${result.errors.join('\n')}`);
     return null;
   }
-
   const base = new URL(packUrl, globalThis.location?.href ?? packUrl);
-  const variants = spriteVariants(result.pack, DONE_TINT);
+  return rebaseSheets(result.pack, (sheet) => new URL(sheet, base).href);
+}
+
+/**
+ * Loads the sprite packs in order and layers them (a later pack wins per class, unit and
+ * terrain id). Returns null when none exists; anything unmapped keeps the placeholder art.
+ */
+export async function loadSpritePack(packUrls: string | readonly string[] = PACK_URLS, deps: LoaderDeps = browserDeps()): Promise<LoadedSprites | null> {
+  const urls = typeof packUrls === 'string' ? [packUrls] : packUrls;
+  const packs = (await Promise.all(urls.map((url) => fetchPack(url, deps)))).filter((p): p is SpritePack => p !== null);
+  if (packs.length === 0) return null;
+  const pack = mergeSpritePacks(packs);
+
+  const variants = spriteVariants(pack, DONE_TINT);
   const sources = new Map<string, CanvasImageSource>();
   await Promise.all(
     [...new Set(variants.map((v) => v.sheet))].map(async (sheet) => {
       try {
-        sources.set(sheet, await deps.loadImage(new URL(sheet, base).href));
+        sources.set(sheet, await deps.loadImage(sheet));
       } catch {
         deps.warn(`sprite pack: could not load ${sheet}; items using it keep placeholder art`);
       }
@@ -62,7 +79,7 @@ export async function loadSpritePack(packUrl: string = DEFAULT_PACK_URL, deps: L
     const source = sources.get(sheet);
     if (source) images.set(imageKey(sheet, tint), tint ? deps.tint(source, tint) : source);
   }
-  return { pack: result.pack, images };
+  return { pack, images };
 }
 
 function browserDeps(): LoaderDeps {

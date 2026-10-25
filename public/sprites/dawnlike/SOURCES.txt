@@ -1,0 +1,35 @@
+Default sprite pack: cells taken from DawnLike v1.81
+"DawnLike - 16x16 Universal Rogue-like tileset v1.81" by DragonDePlatino, palette (DB32) by DawnBringer.
+Commissions sprites (Paladin, Warrior, Mage) commissioned by Romet.
+Source: https://opengameart.org/content/dawnlike-16x16-universal-rogue-like-tileset-v181
+License: CC-BY 4.0, https://creativecommons.org/licenses/by/4.0/ (author's README: DawnLike-README.txt)
+
+Changes: 16x16 cells were cropped from the original sheets and rearranged into the three sheets
+below; terrain cells composite an overlay (tree, hill, building) on a grass cell. No pixels redrawn.
+Cell positions are (column, row) in 16 px units of the original files.
+
+units.png and units-enemy.png (player / enemy look), one row per class, 6 columns:
+  columns 0-1 = idle (Characters X0.png and X1.png, or Commissions walk frames 0 and 2),
+  columns 2-5 = moving (X0, X1, X0, X1, or the Commissions front-facing walk row 0, frames 0-3).
+  row  class      player (units.png)              enemy (units-enemy.png)
+  0    lord       Characters/Player   (4,3)       Characters/Player   (4,3)
+  1    mercenary  Characters/Player   (4,7)       Characters/Player   (5,7)
+  2    myrmidon   Characters/Player   (1,7)       Characters/Player   (2,8)
+  3    soldier    Characters/Player   (1,3)       Characters/Humanoid (0,4)
+  4    knight     Commissions/Paladin.png         Characters/Humanoid (3,4)
+  5    cavalier   Characters/Humanoid (1,13)      Characters/Humanoid (3,13)
+  6    fighter    Commissions/Warrior.png         Characters/Player   (1,11)
+  7    brigand    Characters/Humanoid (0,7)       Characters/Humanoid (0,7)
+  8    archer     Characters/Player   (2,3)       Characters/Humanoid (6,5)
+  9    mage       Commissions/Mage.png            Characters/Humanoid (0,2)
+
+terrain.png, one row, base cell + optional overlay:
+  0 plain    Objects/Floor (8,7)
+  1 road     Objects/Floor (15,7)
+  2 forest   Objects/Floor (8,7) + Objects/Tree0 (1,4)
+  3 hill     Objects/Floor (8,7) + Objects/Hill0 (7,0)
+  4 village  Objects/Floor (8,7) + Objects/Map0 (9,12)
+  5 fort     Objects/Floor (8,7) + Objects/Map0 (8,13)
+  6 gate     Objects/Floor (8,7) + Objects/Map0 (7,13)
+  7 river    Objects/Pit0  (1,15)
+  8 wall     Objects/Floor (1,7)

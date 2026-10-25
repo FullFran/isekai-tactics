@@ -127,7 +127,7 @@ A route is a difficulty variant of the same map. Put enemies shared by both rout
 
 1. `src/data/rules.ts`, in `classes`: `klass(id, movementType, critBonus, weaponTypes, bases, growths)`. `movementType` is `foot`, `armor`, `mounted` or `flier`; `weaponTypes` from `sword`, `lance`, `axe`, `bow`, `anima`; bases and growths use `s(hp, str, mag, skl, spd, lck, def, res, con, mov)`.
 2. Add `"class.<id>"` to both `src/i18n/es.json` and `src/i18n/en.json`.
-3. Optional: a placeholder letter in `CLASS_GLYPH` (`src/adapters/canvas.ts`) and a sprite in a local sprite pack.
+3. Optional: a placeholder letter in `CLASS_GLYPH` (`src/adapters/canvas.ts`) and a sprite in the default pack (`public/sprites/dawnlike/pack.json`, openly licensed art only) or a local sprite pack.
 4. `npm run validate && npm test`.
 
 ## Add a weapon
@@ -140,19 +140,26 @@ A route is a difficulty variant of the same map. Put enemies shared by both rout
 
 1. `src/data/rules.ts`, in `terrains`: `terrain(id, avoid, def, healPct, [foot, armor, mounted, flier])`; a cost of `null` means that movement type cannot enter.
 2. Add `"terrain.<id>"` to both i18n files.
-3. Optional: base, dark and light colours in `TERRAIN_COLOURS` (`src/adapters/canvas.ts`) and a tile in a local sprite pack.
+3. Optional: base, dark and light colours in `TERRAIN_COLOURS` (`src/adapters/canvas.ts`) and a tile in the default pack or a local sprite pack.
 4. Use it in a chapter by adding a legend character.
 
 Changing numbers in existing classes, weapons or terrain changes game balance: say so explicitly when asking for it, and run `npm test` afterwards.
 
-## Sprite packs (local only)
+## Sprite packs
 
-The committed art is drawn in code (procedural terrain tiles and unit tokens). To try other sprites privately (including third-party sprites you must not redistribute), put a **sprite pack** in `assets-local/` at the project root. That folder is git-ignored: it is never committed, and normal builds leave it out.
+The game loads two sprite packs and layers them per item (class, unit id, terrain id); the later one wins:
+
+1. **Default pack**, committed: `public/sprites/dawnlike/pack.json`, built from the DawnLike tileset (CC-BY 4.0; credits in `CREDITS.md`, exact source cells in `SOURCES.txt` next to it). Only openly licensed art with credits may be committed.
+2. **Local pack**, private: `assets-local/pack.json`, if present.
+
+Anything neither pack maps (and any sheet that fails to load) is drawn in code (procedural terrain tiles and unit tokens).
+
+To try other sprites privately (including third-party sprites you must not redistribute), put a **sprite pack** in `assets-local/` at the project root. That folder is git-ignored: it is never committed, and normal builds leave it out. It only needs the items you want to replace.
 
 1. Copy the template: `mkdir -p assets-local && cp docs/sprite-pack.example.json assets-local/pack.json`.
 2. Put your PNG sheets next to it (paths in the manifest are relative to `assets-local/`).
 3. Edit `pack.json` to map what you have; delete entries you do not have images for.
-4. `npm run dev`. Anything the pack maps is drawn from it; everything else (and any sheet that fails to load) keeps the placeholder art. Problems with the manifest are printed in the browser console and the game falls back to placeholders.
+4. `npm run dev`. Anything the local pack maps is drawn from it; everything else comes from the default pack or the placeholder art. Problems with a manifest are printed in the browser console and that pack is skipped.
 5. Before committing, `git status` must not list anything under `assets-local/`.
 
 ### Manifest reference
@@ -161,7 +168,7 @@ The committed art is drawn in code (procedural terrain tiles and unit tokens). T
 |---|---|
 | `version` | Always `1`. |
 | `name` | Optional label. |
-| `tileSize` | Pixel size of one map tile in your sheets (default 16). Sprites are scaled so one tile fills a map square; a 32×32 frame with `tileSize` 16 spans two squares wide and stands on the bottom edge of its tile. |
+| `tileSize` | Pixel size of one map tile in your sheets (default 16; each pack keeps its own when layered). Sprites are scaled so one tile fills a map square; a 32×32 frame with `tileSize` 16 spans two squares wide and stands on the bottom edge of its tile. |
 | `classes.<classId>` | Map sprite for every unit of that class. |
 | `units.<unitId>` | Map sprite for one unit (overrides its class), e.g. a named character. |
 | `terrain.<terrainId>` | `{ "sheet", "col", "row" }`: the tile at that cell (in `tileSize` units). |
@@ -170,7 +177,7 @@ The committed art is drawn in code (procedural terrain tiles and unit tokens). T
 
 | Field | Meaning |
 |---|---|
-| `sheet` | PNG path, relative to `assets-local/`. |
+| `sheet` | PNG path, relative to the folder of its `pack.json`. |
 | `frameWidth`, `frameHeight` | Size of one frame in pixels. |
 | `idle` | `{ "row", "col"?, "frames", "frameMs", "pingPong"? }`: frames run left to right from `col` (default 0) on `row`; `pingPong` plays 0,1,2,1,0… |
 | `moving` | Optional, same shape; played while the unit is selected or being moved. Defaults to `idle`. |
