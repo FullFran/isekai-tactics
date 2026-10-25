@@ -39,7 +39,7 @@ Out of scope: supports, fog, rescue, promotion, shops, weapon ranks, rewind UI, 
 - [x] T4 Phase loop, actions, action log, retreat hook, lord-loss failure, rout/seize objectives. TDD. Route: delegated.
 - [x] T5 Enemy AI v1 (charge, inRange, guard) with deterministic scoring. TDD. Route: delegated.
 - [x] T6 EXP and level-ups with growths. TDD. Route: delegated.
-- [ ] T7 Chapter JSON schema, loader and validator; sample chapter with easy/hard config. TDD. Route: delegated.
+- [x] T7 Chapter JSON schema, loader and validator; sample chapter with easy/hard config. TDD. Route: delegated.
 - [ ] T8 Canvas adapter and app flow: playable sample chapter in the browser. Manual check + build. Route: delegated.
 
 Route trigger evidence: every task touches 2+ non-trivial files (writer trigger) and needs preparation reading (preparation trigger).
@@ -60,6 +60,7 @@ Route trigger evidence: every task touches 2+ non-trivial files (writer trigger)
 - T4 39ec519 feat(core): add phase loop, actions, action log, retreat hook and rout/seize objectives. RED observed (battle module missing). npm test: 7 files, 40 tests passed. typecheck: clean (structuredClone is not in the ES2022 lib; core uses a JSON clone helper). build: ok.
 - T5 f237426 feat(core): add enemy AI v1 with charge, inRange and guard behaviours and offense-bias scoring. RED observed (ai module missing). npm test: 8 files, 48 tests passed. typecheck: clean. build: ok.
 - T6 482ef5e feat(core): add combat EXP and seeded level-ups with growth rates. RED observed (exp module missing). npm test: 9 files, 53 tests passed. typecheck: clean. build: ok.
+- T7 90d6958 feat(core): add chapter JSON validator and loader with easy/hard routes and a sample chapter. RED observed (chapter module missing). Hand-written validator, no new dependency. npm test: 10 files, 62 tests passed. typecheck: clean. build: ok. Calibration: knight base Def 9→7; sample tuned with a scratch greedy-bot simulation (easy 10/12 wins, hard 4/12), not committed.
 
 ## Next step
-T7.
+T8.
