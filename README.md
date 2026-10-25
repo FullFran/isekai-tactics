@@ -10,7 +10,10 @@ npm run dev        # Vite dev server
 npm test           # Vitest (node)
 npm run typecheck  # whole project + DOM-free core/data
 npm run build      # typecheck + production build into dist/
+npm run validate   # check every chapter, rule table and UI name
 ```
+
+Adding content (chapters, classes, weapons, terrain): see [`docs/authoring.md`](docs/authoring.md). Agent rules: [`CLAUDE.md`](CLAUDE.md).
 
 ## Play
 
@@ -28,6 +31,7 @@ npm run build      # typecheck + production build into dist/
 | `src/data` | Content tables (terrain, classes, weapons) and chapter JSON. No DOM. |
 | `src/adapters` | Canvas 2D rendering and input. |
 | `src/app` | Browser entry point and UI flow. |
+| `tools` | Node CLIs (`npm run validate`). |
 | `src/i18n` | UI strings, Spanish (default, source of truth) and English. A test fails if a key is missing. |
 
 ## Rules (M0)
@@ -66,7 +70,7 @@ All formulas live in `src/core/combat.ts` and `src/core/exp.ts`; tables in `src/
 
 ## Chapter JSON
 
-Chapters are plain JSON (`src/data/chapters/*.json`), checked by `validateChapter` (`src/core/chapter.ts`), which reports every problem with a path such as `unitGroups.main[2].weapon: knight cannot wield sword`.
+Chapters are plain JSON (`src/data/chapters/*.json`, full reference in `docs/authoring.md`), checked by `validateChapter` (`src/core/chapter.ts`), which reports every problem with a path such as `unitGroups.main[2].weapon: knight cannot wield sword`.
 
 ```jsonc
 {

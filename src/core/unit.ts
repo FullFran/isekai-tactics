@@ -5,7 +5,8 @@ export const STAT_KEYS = ['hp', 'str', 'mag', 'skl', 'spd', 'lck', 'def', 'res',
 export type StatKey = (typeof STAT_KEYS)[number];
 export type Stats = Record<StatKey, number>;
 
-export type WeaponType = 'sword' | 'lance' | 'axe' | 'bow' | 'anima';
+export const WEAPON_TYPES = ['sword', 'lance', 'axe', 'bow', 'anima'] as const;
+export type WeaponType = (typeof WEAPON_TYPES)[number];
 
 export interface WeaponDef {
   id: string;
