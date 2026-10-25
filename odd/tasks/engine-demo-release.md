@@ -19,6 +19,7 @@ Out of scope: new chapters, music (no licensed tracks chosen yet), story content
 
 ## Constraints
 - Same stack and rules as `CLAUDE.md` (pure core, test-first for behaviour, original IP, no AI attribution).
+- Committed third-party art is allowed only with an open license and credits (DawnLike, CC-BY 4.0, in `public/sprites/dawnlike/` and `CREDITS.md`); private or unlicensed art stays in git-ignored `assets-local/`.
 - Remote work (create GitHub repo, push, deploy) requires explicit user authorization of destination and visibility before it happens.
 
 ## Delivery
@@ -28,6 +29,7 @@ Out of scope: new chapters, music (no licensed tracks chosen yet), story content
 ## Tasks
 - [x] T1 UI and controls parity: title, settings, credits, panels, font, input mapping, controls hint, juice, presentable placeholder art, route select. Tests for pure pieces (input mapping, animation timing/queues, view-model). Route: delegated (writer).
 - [x] T2 Pages workflow, relative base, README demo/controls section; verify `dist/` has no `assets-local`. Route: delegated (same writer).
+- [x] T4 Committed default sprite pack: DawnLike CC-BY 4.0, mapped classes and terrain, credits; assets-local overrides it. Route: delegated (writer).
 - [ ] T3 Create remote, push main, deploy, verify live bundle. Route: parent; blocked on user authorization of destination.
 
 ## Acceptance criteria
@@ -41,6 +43,7 @@ Out of scope: new chapters, music (no licensed tracks chosen yet), story content
 ## Progress / evidence
 - T1 `1ccaf3e` (delegated writer). RED observed first for `pathTo`, `battleCommand`, settings, hud, presenter, ported nav and `nextReadyUnit` tests; then GREEN. Checks: `npm test` 20 files / 120 tests pass, `npm run typecheck` ok, `npm run build` ok, `npm run validate` "content ok". Smoke: headless Firefox screenshots of the built title screen and `?route=easy` battle render correctly (keyboard/mouse flows not driven: no automation browser). Decisions: A/W/S action hotkeys dropped because WASD now moves the cursor (the action menu is a W/S cursor list instead); Tab added (next ready unit); `?route=` deep link added for links and smoke checks. Larger than the 400-line heuristic (~1,900 authored lines incl. the ported UI kit and CSS) because the UI kit, renderer and presenter only make sense together.
 - T2 `b1baf56` (delegated writer). No RED: CI config and docs, no runnable behaviour. Checks: `npm test` 20 files / 120 tests, typecheck ok, build ok, validate "content ok". A normal build (with the dummy pack present in `assets-local/`) leaves `dist/` with only `index.html`, `assets/index-*.js` and `fonts/` (no `assets-local`); `index.html` references `./assets/…` (relative base). Workflow uses Node 24 (one dependency needs ^22.20 or ^24.12) and adds a `test ! -e dist/assets-local` guard. YAML not executed (no remote, no local runner).
+- T4 `7d9b4c7` (delegated writer). RED observed first: 9 failing tests for `mergeSpritePacks`/`rebaseSheets` and the layered loader (default + `assets-local`, local wins per item, sheets relative to each manifest, invalid pack skipped with a warning, none → null); then GREEN. Checks: `npm test` 128 tests pass, typecheck ok, build ok, validate "content ok: 1 chapter(s), 10 classes, 8 weapons, 9 terrains"; `dist/` holds `sprites/dawnlike/` and no `assets-local`. Pack: cells cropped from DawnLike into `units.png` / `units-enemy.png` (row per class, idle cols 0-1, moving cols 2-5; Commissions front walk for knight, fighter, mage) and `terrain.png` (overlays composited on grass); every class in `rules.ts` and every sample terrain mapped (tested). Cavalier = DawnLike centaur (no mounted rider exists). Enemies use distinct sprites plus the default red tint (a faction disc under the feet was tried and dropped: hidden by the sprite). Visual check: headless Firefox shots of title, `?route=easy`, `?route=hard` with the dummy pack parked, plus a private build confirming the dummy pack overrides lord, plain and forest. Gaps: the DawnLike README asks users to hide the Platino sprite; not done per instruction (courtesy request, not a CC-BY term). River tile is static (procedural glints are skipped when a river tile is mapped). Per-item `tileSize` added to the manifest format.
 
 ## Next step
 T3 (parent): needs user authorization of the remote destination and visibility.
