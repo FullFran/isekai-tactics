@@ -40,7 +40,7 @@ Out of scope: supports, fog, rescue, promotion, shops, weapon ranks, rewind UI, 
 - [x] T5 Enemy AI v1 (charge, inRange, guard) with deterministic scoring. TDD. Route: delegated.
 - [x] T6 EXP and level-ups with growths. TDD. Route: delegated.
 - [x] T7 Chapter JSON schema, loader and validator; sample chapter with easy/hard config. TDD. Route: delegated.
-- [ ] T8 Canvas adapter and app flow: playable sample chapter in the browser. Manual check + build. Route: delegated.
+- [x] T8 Canvas adapter and app flow: playable sample chapter in the browser. Manual check + build. Route: delegated.
 
 Route trigger evidence: every task touches 2+ non-trivial files (writer trigger) and needs preparation reading (preparation trigger).
 
@@ -61,6 +61,7 @@ Route trigger evidence: every task touches 2+ non-trivial files (writer trigger)
 - T5 f237426 feat(core): add enemy AI v1 with charge, inRange and guard behaviours and offense-bias scoring. RED observed (ai module missing). npm test: 8 files, 48 tests passed. typecheck: clean. build: ok.
 - T6 482ef5e feat(core): add combat EXP and seeded level-ups with growth rates. RED observed (exp module missing). npm test: 9 files, 53 tests passed. typecheck: clean. build: ok.
 - T7 90d6958 feat(core): add chapter JSON validator and loader with easy/hard routes and a sample chapter. RED observed (chapter module missing). Hand-written validator, no new dependency. npm test: 10 files, 62 tests passed. typecheck: clean. build: ok. Calibration: knight base Def 9→7; sample tuned with a scratch greedy-bot simulation (easy 10/12 wins, hard 4/12), not committed.
+- T8 988d402 feat(app): add Canvas 2D adapter and playable sample chapter with i18n UI. DOM-free UI controller test-first (RED: module missing). npm test: 11 files, 68 tests passed. typecheck: clean. build: ok. npm run dev served index and modules (HTTP 200) on a spare port, then stopped. NOT done: interactive in-browser play (Playwright had no Chromium installed); manual check pending for the user.
 
 ## Next step
-T8.
+Manual in-browser playthrough of both routes (npm run dev); then M1 scoping (rewind UI, deploy screen, more chapters).
