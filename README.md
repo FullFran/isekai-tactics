@@ -13,7 +13,7 @@ npm run build      # typecheck + production build into dist/
 npm run validate   # check every chapter, rule table and UI name
 ```
 
-Adding content (chapters, classes, weapons, terrain): see [`docs/authoring.md`](docs/authoring.md). Agent rules: [`CLAUDE.md`](CLAUDE.md).
+Adding content (chapters, classes, weapons, terrain): see [`docs/authoring.md`](docs/authoring.md). Agent rules: [`CLAUDE.md`](CLAUDE.md). Local sprite packs (git-ignored `assets-local/`, placeholder fallback): see the *Sprite packs* section of the authoring guide.
 
 ## Play
 

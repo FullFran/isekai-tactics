@@ -1,5 +1,6 @@
 import { render, TILE } from '../adapters/canvas';
 import { bindInput } from '../adapters/input';
+import { loadSpritePack, type LoadedSprites } from '../adapters/sprites';
 import type { BattleEvent } from '../core/battle';
 import { ROUTES, type Route } from '../core/chapter';
 import type { CombatSide } from '../core/combat';
@@ -32,6 +33,7 @@ const ctx = canvas.getContext('2d')!;
 let logLines: string[] = [];
 let seenEvents = 0;
 let enemyTimer: number | null = null;
+let sprites: LoadedSprites | null = null;
 
 type Child = Node | string | null | false;
 function el(tag: string, props: { class?: string; onclick?: () => void; title?: string } = {}, ...children: Child[]): HTMLElement {
@@ -179,7 +181,7 @@ function renderPanel(): void {
 
 function changed(): void {
   collectLog();
-  render(ctx, controller);
+  render(ctx, controller, sprites, performance.now());
   renderPanel();
   if (controller.mode.kind === 'enemy' && enemyTimer === null) {
     enemyTimer = window.setTimeout(() => {
@@ -216,3 +218,14 @@ function toggleLanguage(): void {
 bindInput(canvas, controller, { changed, endTurn, restart: () => restart(controller.route), toggleLanguage });
 document.title = t('app.title');
 changed();
+
+// Optional local sprite pack (git-ignored assets-local/); without one the placeholder art stays.
+void loadSpritePack().then((loaded) => {
+  if (!loaded) return;
+  sprites = loaded;
+  const animate = (now: number) => {
+    render(ctx, controller, sprites, now);
+    requestAnimationFrame(animate);
+  };
+  requestAnimationFrame(animate);
+});

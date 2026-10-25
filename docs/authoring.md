@@ -144,3 +144,36 @@ A route is a difficulty variant of the same map. Put enemies shared by both rout
 4. Use it in a chapter by adding a legend character.
 
 Changing numbers in existing classes, weapons or terrain changes game balance: say so explicitly when asking for it, and run `npm test` afterwards.
+
+## Sprite packs (local only)
+
+The committed art is placeholder shapes. To try other sprites privately (including third-party sprites you must not redistribute), put a **sprite pack** in `assets-local/` at the project root. That folder is git-ignored: it is never committed, and normal builds leave it out.
+
+1. Copy the template: `mkdir -p assets-local && cp docs/sprite-pack.example.json assets-local/pack.json`.
+2. Put your PNG sheets next to it (paths in the manifest are relative to `assets-local/`).
+3. Edit `pack.json` to map what you have; delete entries you do not have images for.
+4. `npm run dev`. Anything the pack maps is drawn from it; everything else (and any sheet that fails to load) keeps the placeholder art. Problems with the manifest are printed in the browser console and the game falls back to placeholders.
+5. Before committing, `git status` must not list anything under `assets-local/`.
+
+### Manifest reference
+
+| Field | Meaning |
+|---|---|
+| `version` | Always `1`. |
+| `name` | Optional label. |
+| `tileSize` | Pixel size of one map tile in your sheets (default 16). Sprites are scaled so one tile fills a map square; a 32×32 frame with `tileSize` 16 spans two squares wide and stands on the bottom edge of its tile. |
+| `classes.<classId>` | Map sprite for every unit of that class. |
+| `units.<unitId>` | Map sprite for one unit (overrides its class), e.g. a named character. |
+| `terrain.<terrainId>` | `{ "sheet", "col", "row" }`: the tile at that cell (in `tileSize` units). |
+
+**Unit sprite**
+
+| Field | Meaning |
+|---|---|
+| `sheet` | PNG path, relative to `assets-local/`. |
+| `frameWidth`, `frameHeight` | Size of one frame in pixels. |
+| `idle` | `{ "row", "col"?, "frames", "frameMs", "pingPong"? }`: frames run left to right from `col` (default 0) on `row`; `pingPong` plays 0,1,2,1,0… |
+| `moving` | Optional, same shape; played while the unit is selected or being moved. Defaults to `idle`. |
+| `factions.player`, `factions.enemy` | Optional `{ "sheet"?, "tint"? }`: a separate sheet per faction (recommended) and/or a colour (`#rrggbb`) laid over the sprite. Without an `enemy` entry, enemies are tinted red. Units that already acted are greyed out. |
+
+To include the pack in a production build for a **private** test, run `INCLUDE_LOCAL_SPRITES=1 npm run build`; it copies `assets-local/` into `dist/`. Never publish such a build.

@@ -1,6 +1,9 @@
 import type { Controller } from '../app/controller';
 import { terrainAt, type Point } from '../core/grid';
+import { tileSprite, unitSprite } from '../core/spritePack';
+import type { Unit } from '../core/unit';
 import { RULES } from '../data/rules';
+import { DONE_TINT, imageKey, type LoadedSprites } from './sprites';
 
 export const TILE = 44;
 
@@ -82,15 +85,51 @@ function drawTerrainDetail(ctx: CanvasRenderingContext2D, id: string, x: number,
   ctx.restore();
 }
 
-export function render(ctx: CanvasRenderingContext2D, c: Controller): void {
+function drawPlaceholderUnit(ctx: CanvasRenderingContext2D, u: Unit, cx: number, cy: number, done: boolean): void {
+  ctx.fillStyle = done ? '#6b6f7a' : u.faction === 'player' ? '#2f6fe0' : '#d2413a';
+  ctx.beginPath();
+  if (u.faction === 'player') ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+  else ctx.rect(cx - 13, cy - 13, 26, 26);
+  ctx.fill();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = u.lord ? '#ffd34d' : u.boss ? '#1b0b0b' : 'rgba(255,255,255,0.75)';
+  ctx.stroke();
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 15px ui-monospace, monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(CLASS_GLYPH[u.classId] ?? '?', cx, cy + 1);
+}
+
+/** Draws a sprite cell scaled by the pack's tile size, centred and standing on the tile's bottom edge. */
+function drawUnitSprite(ctx: CanvasRenderingContext2D, sprites: LoadedSprites, u: Unit, p: Point, motion: 'idle' | 'moving', done: boolean, timeMs: number): boolean {
+  const frame = unitSprite(sprites.pack, u, motion, timeMs);
+  const image = frame && sprites.images.get(imageKey(frame.sheet, done ? DONE_TINT : frame.tint));
+  if (!frame || !image) return false;
+  const scale = TILE / sprites.pack.tileSize;
+  const w = frame.sw * scale;
+  const h = frame.sh * scale;
+  ctx.drawImage(image, frame.sx, frame.sy, frame.sw, frame.sh, p.x * TILE + (TILE - w) / 2, p.y * TILE + TILE - h, w, h);
+  return true;
+}
+
+/** Renders the battle; with a loaded sprite pack, mapped units and terrain use it and the rest keep placeholder art. */
+export function render(ctx: CanvasRenderingContext2D, c: Controller, sprites: LoadedSprites | null = null, timeMs = 0): void {
   const { grid } = c.state;
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  ctx.imageSmoothingEnabled = false;
 
   for (let y = 0; y < grid.height; y++) {
     for (let x = 0; x < grid.width; x++) {
       const id = terrainAt(grid, RULES.terrains, { x, y }).id;
-      tileRect(ctx, { x, y }, TERRAIN_COLOURS[id] ?? '#777');
-      drawTerrainDetail(ctx, id, x * TILE, y * TILE);
+      const tile = sprites && tileSprite(sprites.pack, id);
+      const image = tile && sprites.images.get(imageKey(tile.sheet, null));
+      if (tile && image) {
+        ctx.drawImage(image, tile.sx, tile.sy, tile.sw, tile.sh, x * TILE, y * TILE, TILE, TILE);
+      } else {
+        tileRect(ctx, { x, y }, TERRAIN_COLOURS[id] ?? '#777');
+        drawTerrainDetail(ctx, id, x * TILE, y * TILE);
+      }
     }
   }
 
@@ -131,19 +170,8 @@ export function render(ctx: CanvasRenderingContext2D, c: Controller): void {
     const cx = p.x * TILE + TILE / 2;
     const cy = p.y * TILE + TILE / 2 - 3;
     const done = u.faction === c.state.phase && u.acted;
-    ctx.fillStyle = done ? '#6b6f7a' : u.faction === 'player' ? '#2f6fe0' : '#d2413a';
-    ctx.beginPath();
-    if (u.faction === 'player') ctx.arc(cx, cy, 14, 0, Math.PI * 2);
-    else ctx.rect(cx - 13, cy - 13, 26, 26);
-    ctx.fill();
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = u.lord ? '#ffd34d' : u.boss ? '#1b0b0b' : 'rgba(255,255,255,0.75)';
-    ctx.stroke();
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 15px ui-monospace, monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(CLASS_GLYPH[u.classId] ?? '?', cx, cy + 1);
+    const commanded = 'unitId' in c.mode && c.mode.unitId === u.id;
+    if (!sprites || !drawUnitSprite(ctx, sprites, u, p, commanded ? 'moving' : 'idle', done, timeMs)) drawPlaceholderUnit(ctx, u, cx, cy, done);
     // HP bar
     const ratio = Math.max(0, u.hp / u.stats.hp);
     ctx.fillStyle = '#1a1a1a';

@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "name": "My local pack",
+  "tileSize": 16,
+  "classes": {
+    "lord": {
+      "sheet": "units/lord.png",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "idle": { "row": 0, "frames": 3, "frameMs": 250, "pingPong": true },
+      "moving": { "row": 1, "frames": 4, "frameMs": 120 },
+      "factions": { "enemy": { "sheet": "units/lord-enemy.png" } }
+    },
+    "cavalier": {
+      "sheet": "units/cavalier.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "idle": { "row": 0, "frames": 3, "frameMs": 250 },
+      "factions": { "enemy": { "tint": "#e04848" } }
+    }
+  },
+  "units": {
+    "aren": {
+      "sheet": "units/aren.png",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "idle": { "row": 0, "frames": 3, "frameMs": 250 }
+    }
+  },
+  "terrain": {
+    "plain": { "sheet": "tiles.png", "col": 0, "row": 0 },
+    "forest": { "sheet": "tiles.png", "col": 1, "row": 0 }
+  }
+}

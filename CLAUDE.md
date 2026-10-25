@@ -19,7 +19,7 @@ Original-IP browser tactics RPG (GBA grid-tactics style). TypeScript strict, Vit
 ## Original IP and assets
 
 - No third-party names, characters, maps or art in the repository. Placeholder shapes are the committed art.
-- Third-party sprites (e.g. for private tests) live only in git-ignored `assets-local/` as a sprite pack (see `docs/authoring.md`). Never commit, copy or reference their files elsewhere; check `git status` before committing.
+- Third-party sprites (e.g. for private tests) live only in git-ignored `assets-local/` as a sprite pack (format: `docs/authoring.md`, template: `docs/sprite-pack.example.json`); the renderer falls back to placeholders per item. Never commit, copy or reference their files elsewhere; check `git status` before committing.
 
 ## Working rules
 
