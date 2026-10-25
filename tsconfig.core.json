@@ -1,0 +1,10 @@
+{
+  // Compiles the pure simulation (core + data) without DOM typings, so any
+  // accidental use of window, document or other browser APIs fails typecheck.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": []
+  },
+  "include": ["src/core", "src/data"]
+}
