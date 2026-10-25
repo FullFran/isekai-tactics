@@ -27,7 +27,7 @@ Out of scope: battle animations, portraits, any committed third-party art.
 
 ## Tasks
 - [x] T1 `npm run validate` CLI (test-first) + `CLAUDE.md` + `docs/authoring.md`. Route: delegated (writer).
-- [ ] T2 Sprite pack manifest (types + validator, test-first), loader from `assets-local/`, renderer integration with per-item placeholder fallback, `.gitignore`, template manifest, docs section. Route: delegated (writer).
+- [x] T2 Sprite pack manifest (types + validator, test-first), loader from `assets-local/`, renderer integration with per-item placeholder fallback, `.gitignore`, template manifest, docs section. Route: delegated (writer).
 
 Route trigger evidence: both tasks touch 2+ non-trivial files and need preparation reading.
 
@@ -42,5 +42,7 @@ Route trigger evidence: both tasks touch 2+ non-trivial files and need preparati
 ## Progress / evidence
 - T1 7060d01 feat(tools): add npm run validate content CLI, CLAUDE.md and authoring guide. RED observed (content and tools modules missing). Runner: vite-node (pinned as explicit devDependency, already installed via vitest; Node type stripping cannot resolve the extensionless imports). Validator also checks rule tables, unregistered chapter files and i18n names; docs worked example validated. npm test: 13 files, 79 tests. typecheck: clean. build: ok. validate: ok.
 
+- T2 315f0c9 feat(adapters): add local sprite packs with per-item placeholder fallback. RED observed (spritePack and sprites modules missing). Manifest validator + frame resolution pure in core; loader in adapter with injected deps; renderer tested with a recording fake context (mapped class/terrain drawn from pack, unmapped keep placeholders). Dev server: pack.json served as application/json; a missing pack returns Vite's HTML fallback (200 text/html), handled silently by a content-type check. Default build leaves assets-local out of dist; INCLUDE_LOCAL_SPRITES=1 copies it (private builds only). Dummy pack in assets-local/ is ignored (`git status --ignored` shows `!! assets-local/`, 0 tracked files). npm test: 15 files, 95 tests. typecheck: clean. build: ok. validate: ok. NOT done: in-browser visual check (Playwright has no Chrome installed).
+
 ## Next step
-T2.
+Manual in-browser check with the dummy pack in assets-local/ (npm run dev: lord drawn as a yellow bobbing sprite, plain/forest tiles green, other units placeholders); then drop in a real local pack.
