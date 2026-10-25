@@ -12,6 +12,14 @@ npm run typecheck  # whole project + DOM-free core/data
 npm run build      # typecheck + production build into dist/
 ```
 
+## Play
+
+`npm run dev`, open the printed URL. The sample chapter loads on the easy route with a random seed (shown in the panel); switch route or restart from the side panel.
+
+- **Mouse:** click a blue unit to select it (blue = move, red = attack reach), click a blue tile to move, then pick *Attack*, *Seize* or *Wait*. While targeting, hover/click a target to see the forecast, click it again (or *Confirm*) to attack. Right-click cancels.
+- **Keyboard:** arrows move the cursor, Enter/Space/Z confirm, Esc/X cancel, A attack, W wait, S seize, E end turn, R restart, L toggles Spanish/English.
+- The player phase ends automatically when every unit has acted; the enemy phase plays back one action at a time.
+
 ## Layout
 
 | Path | Role |

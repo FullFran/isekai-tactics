@@ -28,3 +28,15 @@ describe('t', () => {
     expect(t('x {n} y', { n: 3 })).toBe('x 3 y');
   });
 });
+
+describe('content names', () => {
+  it('every class, weapon and terrain of the rule tables has a name in each language', async () => {
+    const { RULES } = await import('../src/data/rules');
+    const keys = [
+      ...Object.keys(RULES.classes).map((id) => `class.${id}`),
+      ...Object.keys(RULES.weapons).map((id) => `weapon.${id}`),
+      ...Object.keys(RULES.terrains).map((id) => `terrain.${id}`),
+    ];
+    for (const language of LANGUAGES) expect(keys.filter((key) => !(key in catalog(language)))).toEqual([]);
+  });
+});
