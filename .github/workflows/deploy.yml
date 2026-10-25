@@ -1,0 +1,49 @@
+# Tests, validates and builds the demo, then publishes dist/ to GitHub Pages.
+# The build uses a relative base (vite.config.ts), so it works under /<repo>/ or any sub-path.
+# assets-local/ is git-ignored, so CI never sees a sprite pack and the build never ships one.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # A dependency needs ^22.20 or ^24.12; 24 matches local development.
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run validate
+      - run: npm run build
+      - name: No local sprite pack in the build
+        run: test ! -e dist/assets-local
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
