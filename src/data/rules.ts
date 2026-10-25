@@ -44,7 +44,7 @@ const classes: Record<string, ClassDef> = {
   mercenary: klass('mercenary', 'foot', 0, ['sword'], s(20, 5, 0, 8, 7, 0, 4, 0, 9, 5), s(80, 40, 0, 40, 40, 30, 25, 20, 0, 0)),
   myrmidon: klass('myrmidon', 'foot', 15, ['sword'], s(16, 4, 0, 9, 10, 0, 2, 0, 6, 5), s(70, 30, 0, 50, 55, 35, 15, 20, 0, 0)),
   soldier: klass('soldier', 'foot', 0, ['lance'], s(20, 3, 0, 1, 1, 0, 4, 0, 6, 5), s(80, 50, 0, 30, 20, 25, 25, 15, 0, 0)),
-  knight: klass('knight', 'armor', 0, ['lance'], s(17, 5, 0, 2, 0, 0, 9, 0, 13, 4), s(80, 40, 0, 30, 15, 25, 40, 10, 0, 0)),
+  knight: klass('knight', 'armor', 0, ['lance'], s(17, 5, 0, 2, 0, 0, 7, 0, 13, 4), s(80, 40, 0, 30, 15, 25, 40, 10, 0, 0)),
   cavalier: klass('cavalier', 'mounted', 0, ['sword', 'lance'], s(20, 5, 0, 2, 5, 0, 6, 0, 9, 7), s(75, 35, 0, 40, 30, 30, 15, 15, 0, 0)),
   fighter: klass('fighter', 'foot', 0, ['axe'], s(20, 5, 0, 2, 4, 0, 2, 0, 11, 5), s(85, 55, 0, 30, 20, 15, 15, 5, 0, 0)),
   brigand: klass('brigand', 'foot', 0, ['axe'], s(20, 5, 0, 1, 5, 0, 3, 0, 12, 5), s(82, 50, 0, 30, 20, 15, 10, 13, 0, 0)),

@@ -1,0 +1,49 @@
+{
+  "id": "sample-01",
+  "title": { "es": "El vado de los sauces", "en": "The Willow Ford" },
+  "map": {
+    "legend": { ".": "plain", "F": "forest", "H": "hill", "T": "fort", "V": "village", "~": "river", "=": "road", "#": "wall", "G": "gate" },
+    "rows": [
+      "....FF....#...",
+      ".T..F.....#.G.",
+      "......HH......",
+      "..F...H...FF..",
+      "~~~~=~~~~~=~~~",
+      "......F.......",
+      "..FF.....H....",
+      "..........T...",
+      ".V....F.......",
+      ".............."
+    ]
+  },
+  "objective": { "type": "rout" },
+  "rules": { "lordLossFails": true, "wound": { "enabled": false, "penaltyPct": 10 } },
+  "routes": {
+    "easy": { "enemyLevelBonus": 0, "aiOffenseBias": 0.5, "deploySlots": 4, "unitGroups": ["main"] },
+    "hard": { "enemyLevelBonus": 1, "aiOffenseBias": 3, "deploySlots": 3, "unitGroups": ["main", "hardExtra"] }
+  },
+  "playerStarts": [[2, 9], [3, 8], [1, 9], [4, 9]],
+  "party": [
+    { "id": "aren", "name": "Aren", "class": "lord", "level": 1, "weapon": "ironSword", "lord": true,
+      "stats": { "hp": 20, "str": 6, "mag": 1, "skl": 7, "spd": 8, "lck": 6, "def": 5, "res": 1, "con": 7, "mov": 5 } },
+    { "id": "lio", "name": "Lio", "class": "cavalier", "level": 2, "weapon": "ironLance",
+      "stats": { "hp": 22, "str": 7, "mag": 0, "skl": 6, "spd": 7, "lck": 4, "def": 6, "res": 1, "con": 9, "mov": 7 } },
+    { "id": "mira", "name": "Mira", "class": "mage", "level": 2, "weapon": "fire",
+      "stats": { "hp": 17, "str": 0, "mag": 7, "skl": 6, "spd": 7, "lck": 5, "def": 2, "res": 5, "con": 5, "mov": 5 } },
+    { "id": "tobe", "name": "Tobe", "class": "archer", "level": 2, "weapon": "ironBow",
+      "stats": { "hp": 20, "str": 6, "mag": 0, "skl": 7, "spd": 5, "lck": 3, "def": 4, "res": 1, "con": 7, "mov": 5 } }
+  ],
+  "unitGroups": {
+    "main": [
+      { "id": "raider-1", "name": "Saqueador", "class": "brigand", "level": 1, "weapon": "ironAxe", "at": [5, 2], "ai": "charge" },
+      { "id": "raider-2", "name": "Saqueador", "class": "brigand", "level": 2, "weapon": "ironAxe", "at": [2, 3], "ai": "charge" },
+      { "id": "axeman", "name": "Hachero", "class": "fighter", "level": 2, "weapon": "ironAxe", "at": [11, 3], "ai": "inRange" },
+      { "id": "spearman", "name": "Lancero", "class": "soldier", "level": 2, "weapon": "ironLance", "at": [8, 2], "ai": "inRange" },
+      { "id": "bowman", "name": "Arquero", "class": "archer", "level": 1, "weapon": "ironBow", "at": [12, 2], "ai": "inRange" },
+      { "id": "warden", "name": "Alcaide", "class": "knight", "level": 3, "weapon": "ironLance", "at": [12, 1], "ai": "guard", "boss": true }
+    ],
+    "hardExtra": [
+      { "id": "raider-3", "name": "Saqueador", "class": "brigand", "level": 2, "weapon": "handAxe", "at": [1, 1], "ai": "charge" }
+    ]
+  }
+}
