@@ -36,7 +36,7 @@ Out of scope: supports, fog, rescue, promotion, shops, weapon ranks, rewind UI, 
 - [x] T1 Scaffold: Vite + TS strict + Vitest, layout (`src/core`, `src/data`, `src/adapters`, `src/app`, `src/i18n`), DOM-free core tsconfig, i18n es/en with missing-key test, npm scripts, README. Route: delegated (writer).
 - [x] T2 Seeded RNG, grid/terrain, movement and attack range. TDD. Route: delegated.
 - [x] T3 Stats, classes, weapons, triangle; combat forecast and resolution (2RN hit, 1RN crit, doubling). TDD. Route: delegated.
-- [ ] T4 Phase loop, actions, action log, retreat hook, lord-loss failure, rout/seize objectives. TDD. Route: delegated.
+- [x] T4 Phase loop, actions, action log, retreat hook, lord-loss failure, rout/seize objectives. TDD. Route: delegated.
 - [ ] T5 Enemy AI v1 (charge, inRange, guard) with deterministic scoring. TDD. Route: delegated.
 - [ ] T6 EXP and level-ups with growths. TDD. Route: delegated.
 - [ ] T7 Chapter JSON schema, loader and validator; sample chapter with easy/hard config. TDD. Route: delegated.
@@ -57,6 +57,7 @@ Route trigger evidence: every task touches 2+ non-trivial files (writer trigger)
 - T1 a14f6d6 chore: scaffold Vite + TypeScript strict + Vitest with DOM-free core and i18n. npm test: 2 files, 7 tests passed. typecheck: clean. build: ok. Test-first exception: scaffold, no behaviour (i18n/layering tests written with it).
 - T2 ee8f7ba feat(core): add seeded RNG, terrain grid, movement and attack ranges. RED observed (modules missing). npm test: 4 files, 16 tests passed. typecheck: clean. build: ok.
 - T3 34225e3 feat(core): add stats, classes, weapons, triangle and 2RN combat forecast and resolution. RED observed (combat and data/rules modules missing). npm test: 6 files, 28 tests passed. typecheck: clean. build: ok.
+- T4 39ec519 feat(core): add phase loop, actions, action log, retreat hook and rout/seize objectives. RED observed (battle module missing). npm test: 7 files, 40 tests passed. typecheck: clean (structuredClone is not in the ES2022 lib; core uses a JSON clone helper). build: ok.
 
 ## Next step
-T4.
+T5.
