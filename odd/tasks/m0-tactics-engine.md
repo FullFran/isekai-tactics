@@ -33,7 +33,7 @@ Out of scope: supports, fog, rescue, promotion, shops, weapon ranks, rewind UI, 
 - RDD: off (global), so no native review lifecycle; ordinary checks only.
 
 ## Tasks
-- [ ] T1 Scaffold: Vite + TS strict + Vitest, layout (`src/core`, `src/data`, `src/adapters`, `src/app`, `src/i18n`), DOM-free core tsconfig, i18n es/en with missing-key test, npm scripts, README. Route: delegated (writer).
+- [x] T1 Scaffold: Vite + TS strict + Vitest, layout (`src/core`, `src/data`, `src/adapters`, `src/app`, `src/i18n`), DOM-free core tsconfig, i18n es/en with missing-key test, npm scripts, README. Route: delegated (writer).
 - [ ] T2 Seeded RNG, grid/terrain, movement and attack range. TDD. Route: delegated.
 - [ ] T3 Stats, classes, weapons, triangle; combat forecast and resolution (2RN hit, 1RN crit, doubling). TDD. Route: delegated.
 - [ ] T4 Phase loop, actions, action log, retreat hook, lord-loss failure, rout/seize objectives. TDD. Route: delegated.
@@ -54,7 +54,7 @@ Route trigger evidence: every task touches 2+ non-trivial files (writer trigger)
 `npm test`, `npm run typecheck`; plus `npm run build` from T1 on.
 
 ## Progress / evidence
-(none yet)
+- T1 a14f6d6 chore: scaffold Vite + TypeScript strict + Vitest with DOM-free core and i18n. npm test: 2 files, 7 tests passed. typecheck: clean. build: ok. Test-first exception: scaffold, no behaviour (i18n/layering tests written with it).
 
 ## Next step
-T1.
+T2.
