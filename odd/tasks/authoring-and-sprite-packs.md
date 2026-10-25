@@ -26,7 +26,7 @@ Out of scope: battle animations, portraits, any committed third-party art.
 - RDD: off (global).
 
 ## Tasks
-- [ ] T1 `npm run validate` CLI (test-first) + `CLAUDE.md` + `docs/authoring.md`. Route: delegated (writer).
+- [x] T1 `npm run validate` CLI (test-first) + `CLAUDE.md` + `docs/authoring.md`. Route: delegated (writer).
 - [ ] T2 Sprite pack manifest (types + validator, test-first), loader from `assets-local/`, renderer integration with per-item placeholder fallback, `.gitignore`, template manifest, docs section. Route: delegated (writer).
 
 Route trigger evidence: both tasks touch 2+ non-trivial files and need preparation reading.
@@ -40,7 +40,7 @@ Route trigger evidence: both tasks touch 2+ non-trivial files and need preparati
 `npm test`, `npm run typecheck`, `npm run build`, `npm run validate` (from T1).
 
 ## Progress / evidence
-(none yet)
+- T1 7060d01 feat(tools): add npm run validate content CLI, CLAUDE.md and authoring guide. RED observed (content and tools modules missing). Runner: vite-node (pinned as explicit devDependency, already installed via vitest; Node type stripping cannot resolve the extensionless imports). Validator also checks rule tables, unregistered chapter files and i18n names; docs worked example validated. npm test: 13 files, 79 tests. typecheck: clean. build: ok. validate: ok.
 
 ## Next step
-T1.
+T2.
