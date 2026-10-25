@@ -12,9 +12,11 @@ export interface BattleConfig {
   lordLossFails: boolean;
   /** Carry-over wound applied to retreated units (off by default). */
   wound: { enabled: boolean; penaltyPct: number };
+  /** Enemy AI tuning; a higher offense bias trades safety for damage. */
+  ai: { offenseBias: number };
 }
 
-export const DEFAULT_CONFIG: BattleConfig = { lordLossFails: true, wound: { enabled: false, penaltyPct: 10 } };
+export const DEFAULT_CONFIG: BattleConfig = { lordLossFails: true, wound: { enabled: false, penaltyPct: 10 }, ai: { offenseBias: 1 } };
 
 export type Action =
   | { type: 'move'; unitId: string; to: Point }

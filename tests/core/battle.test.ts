@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activeUnits, applyAction, createBattle, replay, type Action, type BattleSetup } from '../../src/core/battle';
+import { activeUnits, applyAction, createBattle, DEFAULT_CONFIG, replay, type Action, type BattleSetup } from '../../src/core/battle';
 import { parseGrid } from '../../src/core/grid';
 import { legend, rules, stats, unit } from './fixtures';
 
@@ -99,7 +99,7 @@ describe('no permadeath', () => {
   it('applies the wound hook only when the config enables it', () => {
     const base = setup({
       units: [unit({ id: 'lord', lord: true, pos: { x: 0, y: 2 } }), unit({ id: 'ally', pos: { x: 1, y: 1 } }), lethalFoe()],
-      config: { lordLossFails: true, wound: { enabled: true, penaltyPct: 10 } },
+      config: { ...DEFAULT_CONFIG, wound: { enabled: true, penaltyPct: 10 } },
     });
     const s = play(createBattle(base), [{ type: 'endPhase' }, { type: 'attack', unitId: 'reaper', targetId: 'ally' }]);
     expect(s.units.find((u) => u.id === 'ally')!.wound).toEqual({ penaltyPct: 10 });
